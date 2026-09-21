@@ -1,13 +1,15 @@
 // Membership settings.
 //
 // Fill in publicKey, and each tier's priceId and planId, after creating the
-// Memberstack account. A tier's Join button stays on "Opening soon" until its
-// priceId is filled in.
+// Memberstack account. Until a tier's priceId is filled in, its Join button
+// opens an email to contactEmail instead.
 //
 // The public key is designed to be visible in website code. Never paste a
 // secret key (anything starting with sk_) into this file.
 export const membership = {
   publicKey: '', // Memberstack public key: pk_sb_... (test mode) or pk_... (live)
+  // Until a tier's priceId is filled in, its Join button opens an email to this address instead.
+  contactEmail: 'mtgtaverncutortap@gmail.com',
 }
 
 // The three membership tiers. Edit names, prices and perks freely.
@@ -15,9 +17,9 @@ export const membership = {
 //   planId:  the Plan ID of the same plan: pln_... (used to tell which tier a member has)
 export const tiers = [
   {
-    id: 'apprentice',
+    id: 'peasant',
     label: 'Tier 1',
-    name: 'Apprentice',
+    name: 'Playful Peasant',
     price: '$20',
     interval: 'month',
     priceId: '',

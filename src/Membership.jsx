@@ -1,5 +1,12 @@
-import { memberContent, tiers } from './membership.config.js'
+import { memberContent, membership, tiers } from './membership.config.js'
 import { useMembership } from './useMembership.js'
+
+// Used while online payments are not set up yet: opens an email asking to join the tier.
+const joinByEmail = (tier) => {
+  const subject = `Join as ${tier.name}`
+  const body = `Hi! I'd like to join MTG Tavern as a ${tier.name} (${tier.price}/${tier.interval}).\n\nMy name:\n`
+  return `mailto:${membership.contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+}
 
 // Log in / Join / Log out buttons shown in the top menu.
 export function AccountNav() {
@@ -100,7 +107,11 @@ export function MembershipSection() {
                     Join as {tier.name}
                   </button>
                 )}
-                {!isMember && !canJoin && <p className="membership-note">Opening soon</p>}
+                {!isMember && !canJoin && (
+                  <a className="button" href={joinByEmail(tier)}>
+                    Join as {tier.name}
+                  </a>
+                )}
               </div>
             </article>
           )
@@ -108,8 +119,6 @@ export function MembershipSection() {
       </div>
 
       <div className="tiers-footer">
-        {!enabled && <p>Memberships are opening soon. Check back shortly!</p>}
-
         {enabled && !member && (
           <button type="button" className="button-link" onClick={login} disabled={loading}>
             Already a member? Log in

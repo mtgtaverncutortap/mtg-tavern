@@ -1,0 +1,62 @@
+rules_version = '2';
+
+// Paste these into Firebase console > Firestore Database > Rules, then Publish.
+//
+// signups:   anyone can read the lists and add their own name (as short text);
+//            only the person who added a name can remove it.
+// schedules: anyone can read who the head of an event is and the date/time they set.
+//            The first person to volunteer becomes head; only that person can
+//            change the date/time or step down.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /signups/{signupId} {
+      allow read: if true;
+
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly(['eventId', 'eventDate', 'name', 'uid', 'createdAt'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 1
+        && request.resource.data.name.size() <= 30
+        && request.resource.data.eventId is string
+        && request.resource.data.eventId.size() <= 80
+        && request.resource.data.eventDate is string
+        && request.resource.data.eventDate.size() == 10
+        && request.resource.data.createdAt == request.time;
+
+      allow update: if false;
+
+      allow delete: if request.auth != null && resource.data.uid == request.auth.uid;
+    }
+
+    match /schedules/{listId} {
+      allow read: if true;
+
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly(['headUid', 'headName', 'date', 'time', 'updatedAt'])
+        && request.resource.data.headUid == request.auth.uid
+        && request.resource.data.headName is string
+        && request.resource.data.headName.size() >= 1
+        && request.resource.data.headName.size() <= 30
+        && request.resource.data.date is string
+        && (request.resource.data.date.size() == 0 || request.resource.data.date.size() == 10)
+        && request.resource.data.time is string
+        && request.resource.data.time.size() <= 20
+        && request.resource.data.updatedAt == request.time;
+
+      allow update: if request.auth != null
+        && resource.data.headUid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['headUid', 'headName', 'date', 'time', 'updatedAt'])
+        && request.resource.data.headUid == resource.data.headUid
+        && request.resource.data.headName == resource.data.headName
+        && request.resource.data.date is string
+        && (request.resource.data.date.size() == 0 || request.resource.data.date.size() == 10)
+        && request.resource.data.time is string
+        && request.resource.data.time.size() <= 20
+        && request.resource.data.updatedAt == request.time;
+
+      allow delete: if request.auth != null && resource.data.headUid == request.auth.uid;
+    }
+  }
+}

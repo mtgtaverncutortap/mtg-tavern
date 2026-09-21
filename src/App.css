@@ -1043,6 +1043,271 @@ button.button {
   font-style: italic;
 }
 
+.pending-list,
+.formats {
+  margin-top: 56px;
+}
+
+.pending-intro {
+  max-width: 60ch;
+  margin: -8px auto 24px;
+}
+
+/* Progress bars and player lists */
+
+.progress-wrap {
+  margin-top: 12px;
+}
+
+.progress {
+  height: 10px;
+  margin-top: 10px;
+  overflow: hidden;
+  border: 1px solid #7a4a10;
+  border-radius: 999px;
+  background: rgba(58, 40, 20, 0.25);
+}
+
+.progress span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #e8400c, #ffb347);
+  transition: width 0.4s;
+}
+
+.progress-text {
+  margin-top: 6px;
+  font-size: 0.95rem;
+}
+
+.event-players-toggle {
+  display: block;
+  margin-top: 12px;
+  color: var(--ink-h);
+  font-weight: 600;
+}
+
+.players {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(58, 40, 20, 0.45);
+}
+
+.players-empty,
+.players-note {
+  font-size: 0.95rem;
+  font-style: italic;
+}
+
+.players-note a {
+  color: var(--ink-h);
+}
+
+.players-list {
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+  counter-reset: player;
+}
+
+.players-list li {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 2px 0;
+  font-weight: 600;
+  counter-increment: player;
+}
+
+.players-list li::before {
+  content: counter(player) '.';
+  min-width: 1.6em;
+  color: #7a4a10;
+  font-weight: 700;
+}
+
+.players-list li span {
+  flex: 1;
+}
+
+.players-remove {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #8f1d12;
+  font: inherit;
+  font-size: 0.85rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.players-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.players-row input,
+.format-search {
+  min-width: 0;
+  padding: 9px 12px;
+  border: 2px solid #7a4a10;
+  border-radius: 6px;
+  background: #fff8e6;
+  color: var(--ink-h);
+  font: inherit;
+}
+
+.players-row input {
+  flex: 1 1 140px;
+}
+
+.players-row .button {
+  padding: 8px 16px;
+  font-size: 0.9rem;
+}
+
+.players-error {
+  margin-top: 6px;
+  color: #8f1d12;
+  font-weight: 600;
+}
+
+/* Head of an event */
+
+.head-line {
+  margin-bottom: 10px;
+  color: var(--ink-h);
+}
+
+.head-ask {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 10px 0;
+  padding: 10px 12px;
+  border: 1px dashed #7a4a10;
+  border-radius: 6px;
+  background: rgba(255, 248, 230, 0.5);
+  font-size: 0.95rem;
+}
+
+.head-ask input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  accent-color: #b9791d;
+}
+
+.head-panel {
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border: 2px solid #b9791d;
+  border-radius: 6px;
+  background: rgba(255, 248, 230, 0.55);
+}
+
+.head-title {
+  color: var(--ink-h);
+  font-family: var(--heading);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.head-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.head-fields label {
+  display: flex;
+  flex: 1 1 130px;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.head-fields input {
+  min-width: 0;
+  padding: 8px 10px;
+  border: 2px solid #7a4a10;
+  border-radius: 6px;
+  background: #fff8e6;
+  color: var(--ink-h);
+  font: inherit;
+}
+
+.head-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+}
+
+.head-actions .button {
+  padding: 8px 16px;
+  font-size: 0.9rem;
+}
+
+.head-actions .button-link {
+  color: #8f1d12;
+}
+
+/* Format sign-up lists */
+
+.format-search {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto 28px;
+}
+
+.format-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 18px;
+  text-align: left;
+}
+
+.format-card {
+  padding: 16px 18px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  background: linear-gradient(160deg, var(--parchment), var(--parchment-dark));
+  color: var(--ink);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+}
+
+.format-card.ready {
+  border-color: var(--accent);
+  box-shadow: 0 0 20px rgba(255, 150, 40, 0.45);
+}
+
+.format-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 10px;
+}
+
+.format-name {
+  color: var(--ink-h);
+  font-size: 1.05rem;
+  letter-spacing: 0.03em;
+}
+
+.format-desc {
+  margin-top: 4px;
+  font-size: 0.95rem;
+}
+
 .event-locked a {
   color: var(--ink-h);
 }

@@ -1,7 +1,11 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { events } from './events.config.js'
 import { Flame } from './Fire.jsx'
+import { formatListId, formats, PLAYERS_NEEDED } from './formats.config.js'
+import { Formats } from './Formats.jsx'
+import { PlayerList } from './PlayerList.jsx'
 import { useMembership } from './useMembership.js'
+import { useSignups } from './useSignups.js'
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
@@ -14,6 +18,14 @@ const parseKey = (key) => {
 const formatDay = (key) =>
   parseKey(key).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
 
+// One dated happening of an event, with an id that sign-up names are stored under.
+const makeOccurrence = (event, index, key) => ({
+  ...event,
+  key,
+  id: `${index}-${key}`,
+  occId: event.listId ?? `${event.id ?? `event-${index}`}:${key}`,
+})
+
 // Every date an event happens on inside the given month (weekly events repeat).
 function occurrencesInMonth(list, year, month) {
   const first = new Date(year, month, 1)
@@ -24,9 +36,7 @@ function occurrencesInMonth(list, year, month) {
     const start = parseKey(event.date)
 
     if (!event.weekly) {
-      if (start >= first && start <= last) {
-        found.push({ ...event, key: event.date, id: `${index}-${event.date}` })
-      }
+      if (start >= first && start <= last) found.push(makeOccurrence(event, index, event.date))
       return
     }
 
@@ -35,16 +45,25 @@ function occurrencesInMonth(list, year, month) {
     const cursor = new Date(start)
     while (cursor < first) cursor.setDate(cursor.getDate() + 7)
     for (; cursor <= stop; cursor.setDate(cursor.getDate() + 7)) {
-      const key = toKey(cursor)
-      found.push({ ...event, key, id: `${index}-${key}` })
+      found.push(makeOccurrence(event, index, toKey(cursor)))
     }
   })
 
   return found.sort((a, b) => a.key.localeCompare(b.key))
 }
 
-function EventCard({ event, isMember }) {
+// Games that need a minimum number of players stay off the calendar until they have them.
+const playersNeeded = (occurrence) => (occurrence.weekly ? null : (occurrence.minPlayers ?? null))
+
+function EventCard({ event, isMember, defaultOpen = false, pending = false }) {
+  const { playersFor } = useSignups()
+  const [open, setOpen] = useState(defaultOpen)
+
   const locked = event.membersOnly && !isMember
+  const players = playersFor(event.occId)
+  const goal = playersNeeded(event)
+  const hasList = Boolean(event.signup || goal)
+  const missing = goal ? Math.max(goal - players.length, 0) : 0
 
   return (
     <article className={`card event-card${event.membersOnly ? ' event-members' : ''}`}>
@@ -55,7 +74,9 @@ function EventCard({ event, isMember }) {
       <h3>
         {locked ? 'Member event' : event.title}
         {event.membersOnly && !locked && <span className="event-badge">Members</span>}
+        {goal && !pending && <span className="event-badge">Confirmed</span>}
       </h3>
+
       {locked ? (
         <p className="event-locked">
           Members get the full details. <a href="#membership">Become a member</a>
@@ -63,31 +84,95 @@ function EventCard({ event, isMember }) {
       ) : (
         event.details && <p>{event.details}</p>
       )}
+
+      {!locked && goal && pending && (
+        <div className="progress-wrap">
+          <div
+            className="progress"
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={goal}
+            aria-valuenow={Math.min(players.length, goal)}
+            aria-label="Players signed up"
+          >
+            <span style={{ width: `${Math.min((players.length / goal) * 100, 100)}%` }} />
+          </div>
+          <p className="progress-text">
+            {players.length} of {goal} players
+            {missing > 0 ? ` · ${missing} more to put it on the calendar` : ''}
+          </p>
+        </div>
+      )}
+
+      {!locked && hasList && (
+        <>
+          <button
+            type="button"
+            className="button-link event-players-toggle"
+            onClick={() => setOpen((value) => !value)}
+            aria-expanded={open}
+          >
+            {open ? 'Hide players' : `See who’s playing (${players.length})`}
+          </button>
+          {open && <PlayerList event={event} players={players} />}
+        </>
+      )}
     </article>
   )
 }
 
 export default function Events() {
   const { isMember } = useMembership()
+  const { enabled: signupsOn, playersFor, scheduleFor } = useSignups()
   const todayKey = toKey(new Date())
+
+  // A format with a date (set in formats.config.js, or by its head) joins the
+  // calendar once its list of players is full.
+  const scheduledFormats = formats.flatMap((format) => {
+    const schedule = scheduleFor(formatListId(format.id))
+    const date = schedule?.date || format.date
+    if (!date) return []
+    return [
+      {
+        id: format.id,
+        listId: formatListId(format.id),
+        date,
+        time: schedule?.time || format.time,
+        title: format.name,
+        details: format.description,
+        minPlayers: PLAYERS_NEEDED,
+        signup: true,
+        headable: true,
+      },
+    ]
+  })
+  const allEvents = [...events, ...scheduledFormats]
   const [view, setView] = useState(() => {
     const now = new Date()
     return { year: now.getFullYear(), month: now.getMonth() }
   })
   const [selected, setSelected] = useState(null)
 
-  const monthEvents = useMemo(
-    () => occurrencesInMonth(events, view.year, view.month),
-    [view.year, view.month],
-  )
+  const isOnCalendar = (occurrence) => {
+    const goal = playersNeeded(occurrence)
+    return !goal || playersFor(occurrence.occId).length >= goal
+  }
 
-  const byDay = useMemo(() => {
-    const map = new Map()
-    monthEvents.forEach((event) => {
-      map.set(event.key, [...(map.get(event.key) ?? []), event])
-    })
-    return map
-  }, [monthEvents])
+  // Only confirmed games make it onto the calendar.
+  const monthEvents = occurrencesInMonth(allEvents, view.year, view.month).filter(isOnCalendar)
+
+  const byDay = new Map()
+  monthEvents.forEach((event) => {
+    byDay.set(event.key, [...(byDay.get(event.key) ?? []), event])
+  })
+
+  // Upcoming games that still need players.
+  const pending = allEvents
+    .flatMap((event, index) =>
+      playersNeeded(event) && event.date >= todayKey ? [makeOccurrence(event, index, event.date)] : [],
+    )
+    .filter((occurrence) => !isOnCalendar(occurrence))
+    .sort((a, b) => a.key.localeCompare(b.key))
 
   const monthLabel = new Date(view.year, view.month, 1).toLocaleDateString('en-US', {
     month: 'long',
@@ -103,6 +188,7 @@ export default function Events() {
   }
 
   const shown = selected ? (byDay.get(selected) ?? []) : monthEvents
+  const noEventsAtAll = allEvents.length === 0
 
   return (
     <section id="events" className="section events-section">
@@ -205,20 +291,43 @@ export default function Events() {
           {selected ? formatDay(selected) : `Events in ${monthLabel}`}
         </h3>
 
-        {events.length === 0 && <p className="events-empty">Events will be posted here soon.</p>}
+        {noEventsAtAll && <p className="events-empty">Events will be posted here soon.</p>}
 
-        {events.length > 0 && shown.length === 0 && (
+        {!noEventsAtAll && shown.length === 0 && (
           <p className="events-empty">Nothing scheduled here. Try another month.</p>
         )}
 
         {shown.length > 0 && (
           <div className="cards">
             {shown.map((event) => (
-              <EventCard event={event} isMember={isMember} key={event.id} />
+              <EventCard
+                event={event}
+                isMember={isMember}
+                defaultOpen={Boolean(selected)}
+                key={`${event.id}-${selected ?? 'month'}`}
+              />
             ))}
           </div>
         )}
       </div>
+
+      {signupsOn && pending.length > 0 && (
+        <div className="events-list pending-list">
+          <h3 className="events-list-title">Games looking for players</h3>
+          <p className="pending-intro">
+            Put your name on the list. Once {pending[0].minPlayers} players are on a list, that game
+            is added to the calendar.
+          </p>
+          <div className="cards">
+            {pending.map((event) => (
+              <EventCard event={event} isMember={isMember} defaultOpen pending key={event.id} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Hidden until the sign-up database is connected (see signups.config.js). */}
+      {signupsOn && <Formats />}
     </section>
   )
 }

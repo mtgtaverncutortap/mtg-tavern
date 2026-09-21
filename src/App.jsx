@@ -5,6 +5,7 @@ import Gallery from './Gallery.jsx'
 import Menu from './Menu.jsx'
 import snuggleLogo from './assets/snugglebunz-logo.webp'
 import { AccountNav, MembersArea, MembershipSection } from './Membership.jsx'
+import { discordInvite as discord } from './site.config.js'
 
 // Edit this object to change the text on the page.
 const business = {
@@ -13,9 +14,6 @@ const business = {
   intro:
     'An enhanced environment to play in while experiencing food, drinks, and lounge access.',
   cta: 'Visit the tavern',
-  // Paste the Discord invite link here, e.g. 'https://discord.gg/abc123'.
-  // While it is empty, the Join our Discord buttons stay hidden.
-  discord: '',
   services: [
     {
       title: 'Packs & Singles',
@@ -44,7 +42,7 @@ const business = {
 }
 
 function App() {
-  const { name, tagline, intro, cta, discord, services, about, contact } = business
+  const { name, tagline, intro, cta, services, about, contact } = business
 
   const discordButton = discord && (
     <a className="button button-discord" href={discord} target="_blank" rel="noopener noreferrer">
