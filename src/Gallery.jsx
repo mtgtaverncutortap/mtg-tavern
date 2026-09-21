@@ -8,49 +8,38 @@ const urls = import.meta.glob('./assets/photos/*.jpg', {
 
 const photoUrl = (name) => urls[`./assets/photos/${name}.jpg`]
 
-// Edit captions and alt text here. Width/height keep the grid from jumping while images load.
+// Edit the order, captions and alt text here. Photos show left to right, row by row.
+// `position` picks which part of the photo stays visible in the square thumbnail.
 const photos = [
   {
-    slug: 'magic-mug',
-    width: 1200,
-    height: 1600,
-    caption: 'Tavern tankard',
-    alt: 'Close-up of a wooden tankard with a leather Magic: The Gathering crest',
-  },
-  {
-    slug: 'fireplace',
-    width: 1600,
-    height: 1200,
-    caption: 'Warm up by the fire',
-    alt: 'Glowing electric fireplace with card collection boxes stored in the drawer below',
-  },
-  {
-    slug: 'lounge-corner',
-    width: 1200,
-    height: 1600,
-    caption: 'The lounge corner',
-    alt: 'Corner table with a cigar humidor, a candle, a cigar on a red cutter and a glowing lantern',
-  },
-  {
     slug: 'play-table',
-    width: 1600,
-    height: 1200,
+    position: '50% 40%',
     caption: 'Room to play',
     alt: 'Wooden table covered with Magic cards, playmats, dice, booster packs and a life-total tracker',
   },
   {
+    slug: 'lounge-corner',
+    position: '50% 75%',
+    caption: 'The lounge corner',
+    alt: 'Corner table with a cigar humidor, a candle, a cigar on a red cutter and a glowing lantern',
+  },
+  {
+    slug: 'magic-mug',
+    position: '50% 60%',
+    caption: 'Tavern tankard',
+    alt: 'Close-up of a wooden tankard with a leather Magic: The Gathering crest',
+  },
+  {
     slug: 'sealed-product',
-    width: 1200,
-    height: 1600,
+    position: '50% 70%',
     caption: 'Sealed product',
     alt: 'Sealed Magic: The Gathering products, including a Final Fantasy Commander deck and an Avatar beginner box',
   },
   {
-    slug: 'packs-mug',
-    width: 1200,
-    height: 1600,
-    caption: 'Packs by the tankard',
-    alt: 'Wooden Magic: The Gathering tankard filled with booster packs',
+    slug: 'fireplace',
+    position: '50% 40%',
+    caption: 'Warm up by the fire',
+    alt: 'Glowing electric fireplace with card collection boxes stored in the drawer below',
   },
 ]
 
@@ -97,8 +86,7 @@ export default function Gallery() {
             <img
               src={photoUrl(`${photo.slug}-thumb`)}
               alt={photo.alt}
-              width={photo.width}
-              height={photo.height}
+              style={{ objectPosition: photo.position }}
               loading="lazy"
             />
             <span className="gallery-caption">{photo.caption}</span>
