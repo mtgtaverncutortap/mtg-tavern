@@ -1,6 +1,7 @@
 import './App.css'
 import { Embers, Flame, Hearth, Torch } from './Fire.jsx'
 import Gallery from './Gallery.jsx'
+import { AccountNav, MembersArea, MembershipSection } from './Membership.jsx'
 
 // Edit this object to change the text on the page.
 const business = {
@@ -52,6 +53,7 @@ function App() {
           <a href="#about">About</a>
           <a href="#contact">Contact</a>
         </nav>
+        <AccountNav />
       </header>
 
       <main id="top">
@@ -89,6 +91,9 @@ function App() {
           <h2>About us</h2>
           <p className="about-text">{about}</p>
         </section>
+
+        <MembersArea />
+        <MembershipSection />
 
         <section id="contact" className="section">
           <h2>Contact</h2>
