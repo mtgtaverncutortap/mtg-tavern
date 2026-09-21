@@ -186,6 +186,45 @@
   color: var(--accent-hover);
 }
 
+/* ---------- Announcement banner ---------- */
+
+.announcement {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 2px solid var(--border);
+  background: linear-gradient(90deg, #4a1706, #8a3410 50%, #4a1706);
+  color: #ffe89a;
+  font-family: var(--heading);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-align: center;
+  text-transform: uppercase;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
+}
+
+.announcement p {
+  font-size: 1rem;
+}
+
+/* Inside the Events section it sits above the calendar as a rounded banner. */
+.events-section .announcement {
+  max-width: 720px;
+  margin: 0 auto 32px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 0 24px rgba(255, 110, 20, 0.25);
+}
+
+@media (max-width: 480px) {
+  .announcement p {
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+  }
+}
+
 /* ---------- Hero ---------- */
 
 .hero {

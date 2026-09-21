@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { events } from './events.config.js'
+import { Flame } from './Fire.jsx'
 import { useMembership } from './useMembership.js'
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -106,6 +107,12 @@ export default function Events() {
   return (
     <section id="events" className="section events-section">
       <h2>Events</h2>
+
+      <div className="announcement" role="note">
+        <Flame className="flame-icon" />
+        <p>Commander is happening 24/7</p>
+        <Flame className="flame-icon" delay={-0.4} />
+      </div>
 
       <div className="calendar">
         <div className="cal-header">
