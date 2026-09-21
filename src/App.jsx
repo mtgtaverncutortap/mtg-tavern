@@ -4,9 +4,9 @@ import { Embers, Flame, Hearth, Torch } from './Fire.jsx'
 // Edit this object to change the text on the page.
 const business = {
   name: 'MTG Tavern',
-  tagline: 'Magic cards, tournaments, and a proper tavern to enjoy them in.',
+  tagline: 'Magic the Gathering cafe!',
   intro:
-    'A novelty Magic: The Gathering card shop with great food, butterbeer on the menu, and room to bring your own beer. Crack a pack, trade for a single, or sit down for a tournament with prizes on the line.',
+    'An enhanced environment to play in while experiencing food, drinks, and lounge access.',
   cta: 'Visit the tavern',
   services: [
     {
@@ -19,15 +19,15 @@ const business = {
     },
     {
       title: 'Food & Drink',
-      text: 'Great food made for eating between turns. Try our butterbeer, or bring your own beer.',
+      text: 'Great food and drinks to enjoy while you play. Try our butterbeer, or bring your own beer.',
     },
     {
-      title: 'Places to Smoke',
-      text: 'Step away for a smoke without straying far from the game.',
+      title: 'Lounge Access',
+      text: 'Settle into an enhanced environment built for playing and hanging out, with places to smoke close by.',
     },
   ],
   about:
-    'MTG Tavern is a novelty Magic: The Gathering card shop built like a tavern: a place to buy cards, play games, eat well and hang out. Whether you are opening your first pack or chasing a tournament win, pull up a seat.',
+    'MTG Tavern is a Magic the Gathering cafe: an enhanced environment to play in while experiencing food, drinks, and lounge access. Pick up packs and singles, join a tournament for prizes, and make yourself at home whether you are opening your first pack or chasing a win.',
   contact: {
     email: 'mtgtaverncutortap@gmail.com',
     phone: '(714) 296-4155',
