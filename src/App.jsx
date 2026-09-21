@@ -2,6 +2,7 @@ import './App.css'
 import { Embers, Flame, Hearth, Torch } from './Fire.jsx'
 import Events from './Events.jsx'
 import Gallery from './Gallery.jsx'
+import Menu from './Menu.jsx'
 import snuggleLogo from './assets/snugglebunz-logo.webp'
 import { AccountNav, MembersArea, MembershipSection } from './Membership.jsx'
 
@@ -51,6 +52,7 @@ function App() {
         </a>
         <nav className="nav-links">
           <a href="#services">Services</a>
+          <a href="#menu">Menu</a>
           <a href="#events">Events</a>
           <a href="#gallery">Gallery</a>
           <a href="#about">About</a>
@@ -87,6 +89,8 @@ function App() {
             ))}
           </div>
         </section>
+
+        <Menu />
 
         <Events />
 
