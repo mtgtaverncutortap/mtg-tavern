@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { membership } from './membership.config.js'
+import { membership, tiers } from './membership.config.js'
 import { MembershipContext } from './useMembership.js'
 
-const enabled = Boolean(membership.publicKey && membership.priceId)
+const enabled = Boolean(membership.publicKey && tiers.some((tier) => tier.priceId))
 
 // Load the Memberstack library only when memberships are configured, and only once.
 let sdkPromise = null
@@ -17,12 +17,27 @@ function loadSdk() {
 
 const pageUrl = () => window.location.href.split('#')[0]
 
-const hasActiveMembership = (member) =>
-  Boolean(
-    member?.planConnections?.some(
-      (plan) => plan.active && (!membership.planId || plan.planId === membership.planId),
-    ),
-  )
+// Works out whether someone is a paying member, and which tier they are on.
+function membershipStatus(member) {
+  if (import.meta.env.DEV) {
+    // Local development only: ?preview=member&tier=wizard shows the member view.
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('preview') === 'member') {
+      return { isMember: true, tier: tiers.find((t) => t.id === params.get('tier')) ?? tiers[0] }
+    }
+  }
+
+  const active = member?.planConnections?.filter((plan) => plan.active) ?? []
+  if (!active.length) return { isMember: false, tier: null }
+
+  const tier = tiers.find((t) => t.planId && active.some((plan) => plan.planId === t.planId))
+  if (tier) return { isMember: true, tier }
+
+  // If no plan IDs are filled in yet, any active plan counts and the tier is unknown.
+  if (!tiers.some((t) => t.planId)) return { isMember: true, tier: null }
+
+  return { isMember: false, tier: null }
+}
 
 export function MembershipProvider({ children }) {
   const [loading, setLoading] = useState(enabled)
@@ -81,8 +96,10 @@ export function MembershipProvider({ children }) {
     }
   }, [])
 
-  const join = useCallback(async () => {
-    if (!enabled) return
+  // Signs the visitor up (if needed), then sends them to Stripe to pay for the chosen tier.
+  const join = useCallback(async (tierId) => {
+    const tier = tiers.find((t) => t.id === tierId)
+    if (!enabled || !tier?.priceId) return
     setError('')
     try {
       const sdk = await loadSdk()
@@ -95,9 +112,8 @@ export function MembershipProvider({ children }) {
         if (!current) return // window was closed without signing up
       }
 
-      // Sends the member to a secure Stripe payment page for the monthly plan.
       await sdk.purchasePlansWithCheckout({
-        priceId: membership.priceId,
+        priceId: tier.priceId,
         successUrl: `${pageUrl()}#members`,
         cancelUrl: `${pageUrl()}#membership`,
       })
@@ -128,25 +144,22 @@ export function MembershipProvider({ children }) {
     }
   }, [])
 
-  const value = useMemo(
-    () => ({
+  const value = useMemo(() => {
+    const status = membershipStatus(member)
+    return {
       enabled,
       loading,
       member,
-      // In local development only, add ?preview=member to the address to see the member view.
-      isMember:
-        hasActiveMembership(member) ||
-        (import.meta.env.DEV &&
-          new URLSearchParams(window.location.search).get('preview') === 'member'),
+      isMember: status.isMember,
+      tier: status.tier,
       error,
       join,
       login,
       logout,
       manageBilling,
       refresh,
-    }),
-    [loading, member, error, join, login, logout, manageBilling, refresh],
-  )
+    }
+  }, [loading, member, error, join, login, logout, manageBilling, refresh])
 
   return <MembershipContext.Provider value={value}>{children}</MembershipContext.Provider>
 }

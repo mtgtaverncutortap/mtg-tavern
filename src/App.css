@@ -588,22 +588,96 @@
 
 /* ---------- Membership ---------- */
 
-.membership-card {
-  max-width: 480px;
-  margin: 0 auto;
+.tiers-intro {
+  margin: -20px 0 36px;
+  font-size: 1.2rem;
+}
+
+.tiers {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: stretch;
+  gap: 28px;
+}
+
+.tier-card {
+  display: flex;
+  flex: 1 1 270px;
+  flex-direction: column;
+  align-items: center;
+  max-width: 320px;
   text-align: center;
+}
+
+.tier-card .membership-perks {
+  display: block;
+  width: 100%;
+}
+
+.tier-label {
+  color: #7a4a10;
+  font-family: var(--heading);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.tier-name {
+  margin: 4px 0 6px;
+  font-size: 1.7rem;
+}
+
+.tier-card.current {
+  border-color: var(--accent);
+  box-shadow:
+    0 0 28px rgba(255, 150, 40, 0.55),
+    inset 0 0 40px rgba(90, 58, 30, 0.35);
+}
+
+.tier-action {
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.tier-current {
+  color: #7a4a10;
+  font-family: var(--heading);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.tiers-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 32px;
+}
+
+.members-tier {
+  max-width: 420px;
+  margin: 0 auto 32px;
+  text-align: center;
+}
+
+.members-tier-label {
+  color: #7a4a10;
+  font-size: 0.9rem;
 }
 
 .membership-price {
   margin-bottom: 18px;
   color: var(--ink);
   font-family: var(--heading);
-  font-size: 1.2rem;
+  font-size: 1.1rem;
 }
 
 .membership-price span {
   color: var(--ink-h);
-  font-size: 3.2rem;
+  font-size: 2.8rem;
   font-weight: 700;
 }
 
@@ -639,13 +713,6 @@
   font-style: italic;
 }
 
-.membership-actions {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-
 .membership-error {
   margin-top: 14px;
   color: #8f1d12;
@@ -676,10 +743,6 @@ button.button {
 .button-link:hover,
 .button-link:focus-visible {
   color: var(--accent-hover);
-}
-
-.membership-card .button-link {
-  color: var(--ink-h);
 }
 
 .members-email {
