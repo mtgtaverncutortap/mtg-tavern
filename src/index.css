@@ -1,0 +1,69 @@
+:root {
+  --text: #e2d2b0;
+  --text-h: #f7e6bd;
+  --bg: #120b06;
+  --wood: #241509;
+  --wood-light: #33200f;
+  --border: #5a3a1e;
+  --accent: #e0a93e;
+  --accent-hover: #f4c661;
+  --on-accent: #1a0f07;
+  --parchment: #e6d2a3;
+  --parchment-dark: #d1b57c;
+  --ink: #3a2814;
+  --ink-h: #241407;
+
+  --display: 'Cinzel Decorative', 'Cinzel', Georgia, serif;
+  --heading: 'Cinzel', Georgia, serif;
+  --body: 'EB Garamond', Georgia, serif;
+
+  font: 20px/1.55 var(--body);
+  color-scheme: dark;
+  color: var(--text);
+  background: var(--bg);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+
+  @media (max-width: 720px) {
+    font-size: 18px;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 72px;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg);
+  background-image: radial-gradient(
+    ellipse at 50% 0%,
+    #2b1a0d 0%,
+    transparent 65%
+  );
+  background-attachment: fixed;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--heading);
+  color: var(--text-h);
+  line-height: 1.2;
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--accent);
+}
