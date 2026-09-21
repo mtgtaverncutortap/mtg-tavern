@@ -133,7 +133,11 @@ export function MembershipProvider({ children }) {
       enabled,
       loading,
       member,
-      isMember: hasActiveMembership(member),
+      // In local development only, add ?preview=member to the address to see the member view.
+      isMember:
+        hasActiveMembership(member) ||
+        (import.meta.env.DEV &&
+          new URLSearchParams(window.location.search).get('preview') === 'member'),
       error,
       join,
       login,

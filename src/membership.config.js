@@ -14,9 +14,8 @@ export const membership = {
 }
 
 // What members see on the members-only page. Edit freely.
-// events: [{ title: 'Friday Night Magic', when: 'Fridays, 7 PM', details: 'Draft format, prizes for the top players.' }]
+// Member events themselves are added in events.config.js.
 export const memberContent = {
   welcome: 'Welcome to the members lounge!',
-  announcement: 'Your tournament and event schedule will appear here.',
-  events: [],
+  announcement: 'Thanks for being a member. Member-only events show full details in the calendar.',
 }

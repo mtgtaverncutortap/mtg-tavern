@@ -65,7 +65,7 @@ export function MembershipSection() {
         </p>
         <ul className="membership-perks">
           <li>Access to tavern activities</li>
-          <li>A members-only page with the event schedule</li>
+          <li>Member-only events, with full details in our calendar</li>
           <li>Your own personal account</li>
         </ul>
 
@@ -125,17 +125,9 @@ export function MembersArea() {
       {email && <p className="members-email">Logged in as {email}</p>}
       <p className="members-announcement">{memberContent.announcement}</p>
 
-      {memberContent.events.length > 0 && (
-        <div className="cards members-events">
-          {memberContent.events.map((event) => (
-            <article className="card" key={event.title}>
-              <h3>{event.title}</h3>
-              <p className="event-when">{event.when}</p>
-              <p>{event.details}</p>
-            </article>
-          ))}
-        </div>
-      )}
+      <p className="members-announcement">
+        <a href="#events">See the member events in the calendar</a>
+      </p>
 
       <button type="button" className="button-link" onClick={manageBilling}>
         Manage billing

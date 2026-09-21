@@ -1,6 +1,8 @@
 import './App.css'
 import { Embers, Flame, Hearth, Torch } from './Fire.jsx'
+import Events from './Events.jsx'
 import Gallery from './Gallery.jsx'
+import snuggleLogo from './assets/snugglebunz-logo.webp'
 import { AccountNav, MembersArea, MembershipSection } from './Membership.jsx'
 
 // Edit this object to change the text on the page.
@@ -49,6 +51,7 @@ function App() {
         </a>
         <nav className="nav-links">
           <a href="#services">Services</a>
+          <a href="#events">Events</a>
           <a href="#gallery">Gallery</a>
           <a href="#about">About</a>
           <a href="#contact">Contact</a>
@@ -85,11 +88,31 @@ function App() {
           </div>
         </section>
 
+        <Events />
+
         <Gallery />
 
         <section id="about" className="section section-alt">
           <h2>About us</h2>
           <p className="about-text">{about}</p>
+        </section>
+
+        <section className="partner-section" aria-label="Snugglebunz">
+          <a
+            className="partner-button"
+            href="https://www.originalsnugglebunz.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img src={snuggleLogo} alt="" width="88" height="88" />
+            <span className="partner-text">
+              <span className="partner-label">
+                Visit Snugglebunz
+                <span className="visually-hidden"> (opens in a new tab)</span>
+              </span>
+              <span className="partner-sub">originalsnugglebunz.com</span>
+            </span>
+          </a>
         </section>
 
         <MembersArea />
