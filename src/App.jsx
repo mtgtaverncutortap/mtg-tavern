@@ -13,6 +13,9 @@ const business = {
   intro:
     'An enhanced environment to play in while experiencing food, drinks, and lounge access.',
   cta: 'Visit the tavern',
+  // Paste the Discord invite link here, e.g. 'https://discord.gg/abc123'.
+  // While it is empty, the Join our Discord buttons stay hidden.
+  discord: '',
   services: [
     {
       title: 'Packs & Singles',
@@ -41,7 +44,14 @@ const business = {
 }
 
 function App() {
-  const { name, tagline, intro, cta, services, about, contact } = business
+  const { name, tagline, intro, cta, discord, services, about, contact } = business
+
+  const discordButton = discord && (
+    <a className="button button-discord" href={discord} target="_blank" rel="noopener noreferrer">
+      Join our Discord
+      <span className="visually-hidden"> (opens in a new tab)</span>
+    </a>
+  )
 
   return (
     <>
@@ -70,9 +80,12 @@ function App() {
               <p className="hero-kicker">Welcome, traveler</p>
               <h1>{tagline}</h1>
               <p className="hero-intro">{intro}</p>
-              <a className="button" href="#contact">
-                {cta}
-              </a>
+              <div className="hero-actions">
+                <a className="button" href="#contact">
+                  {cta}
+                </a>
+                {discordButton}
+              </div>
             </div>
             <Torch delay={-0.6} />
           </div>
@@ -135,6 +148,7 @@ function App() {
             </li>
             <li>{contact.location}</li>
           </ul>
+          {discordButton && <p className="contact-discord">{discordButton}</p>}
         </section>
       </main>
 
