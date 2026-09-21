@@ -1,5 +1,6 @@
 import './App.css'
 import { Embers, Flame, Hearth, Torch } from './Fire.jsx'
+import Gallery from './Gallery.jsx'
 
 // Edit this object to change the text on the page.
 const business = {
@@ -47,6 +48,7 @@ function App() {
         </a>
         <nav className="nav-links">
           <a href="#services">Services</a>
+          <a href="#gallery">Gallery</a>
           <a href="#about">About</a>
           <a href="#contact">Contact</a>
         </nav>
@@ -80,6 +82,8 @@ function App() {
             ))}
           </div>
         </section>
+
+        <Gallery />
 
         <section id="about" className="section section-alt">
           <h2>About us</h2>
