@@ -156,9 +156,6 @@ export function Formats() {
         players are on a list, we pick a date and add the game to the calendar
         {discordInvite ? ' and announce it in our Discord' : ''}.
       </p>
-      <p className="pending-intro">
-        We&rsquo;re also building a varsity Commander team to compete against other shops.
-      </p>
 
       <label className="visually-hidden" htmlFor="format-search">
         Search formats
