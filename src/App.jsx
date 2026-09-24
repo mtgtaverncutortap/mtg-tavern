@@ -29,7 +29,7 @@ const business = {
     },
     {
       title: 'Lounge Access',
-      text: 'Settle into an enhanced environment built for playing and hanging out, with places to smoke close by.',
+      text: 'Settle into an enhanced environment built for playing and hanging out.',
     },
   ],
   about:
