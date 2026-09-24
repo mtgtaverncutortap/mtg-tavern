@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { events } from './events.config.js'
 import { Flame } from './Fire.jsx'
 import { formatListId, formats, PLAYERS_NEEDED } from './formats.config.js'
@@ -66,9 +66,51 @@ function occurrencesInMonth(list, year, month) {
 // Games that need a minimum number of players stay off the calendar until they have them.
 const playersNeeded = (occurrence) => (occurrence.weekly ? null : (occurrence.minPlayers ?? null))
 
-function EventCard({ event, isMember, defaultOpen = false, pending = false }) {
+// A modal's onClose is a fresh function every render, which would otherwise make this
+// effect tear down and rebuild on every unrelated re-render. Reading it through a ref
+// keeps the effect tied only to isOpen, while still always calling the latest onClose.
+function useModalBehavior(isOpen, onClose) {
+  const closeRef = useRef(null)
+  const onCloseRef = useRef(onClose)
+
+  useEffect(() => {
+    onCloseRef.current = onClose
+  })
+
+  useEffect(() => {
+    if (!isOpen) return undefined
+
+    const onKey = (event) => {
+      if (event.key === 'Escape') onCloseRef.current()
+    }
+
+    window.addEventListener('keydown', onKey)
+    closeRef.current?.focus()
+
+    return () => window.removeEventListener('keydown', onKey)
+  }, [isOpen])
+
+  return closeRef
+}
+
+// Locks page scroll while any pop-up is open. Centralized (rather than one lock per
+// modal) so two stacked pop-ups don't fight over restoring the same shared value.
+function useScrollLock(locked) {
+  useEffect(() => {
+    if (!locked) return undefined
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [locked])
+}
+
+// The guts of one event: date, title, description, and (if it has one) the sign-up list.
+// Used both inline in "Games looking for players" and inside the event detail pop-up.
+function EventContent({ event, isMember, pending = false }) {
   const { playersFor } = useSignups()
-  const [open, setOpen] = useState(defaultOpen)
+  const [open, setOpen] = useState(false)
 
   const locked = event.membersOnly && !isMember
   const players = playersFor(event.occId)
@@ -77,7 +119,7 @@ function EventCard({ event, isMember, defaultOpen = false, pending = false }) {
   const missing = goal ? Math.max(goal - players.length, 0) : 0
 
   return (
-    <article className={`card event-card${event.membersOnly ? ' event-members' : ''}`}>
+    <>
       <p className="event-date">
         {formatDay(event.key)}
         {event.time ? ` · ${event.time}` : ''}
@@ -128,7 +170,81 @@ function EventCard({ event, isMember, defaultOpen = false, pending = false }) {
           {open && <PlayerList event={event} players={players} />}
         </>
       )}
-    </article>
+    </>
+  )
+}
+
+// Clicking a day opens this: a list of that day's events to choose from.
+function DayModal({ dayKey, dayEvents, onSelectEvent, onClose }) {
+  const closeRef = useModalBehavior(Boolean(dayKey), onClose)
+
+  if (!dayKey) return null
+
+  return (
+    <div
+      className="rules-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${formatDay(dayKey)} schedule`}
+      onClick={onClose}
+    >
+      <div className="rules-modal-card day-modal-card" onClick={(event) => event.stopPropagation()}>
+        <button
+          type="button"
+          className="rules-modal-close"
+          ref={closeRef}
+          onClick={onClose}
+          aria-label="Close"
+        >
+          &times;
+        </button>
+        <p className="tier-label">Schedule</p>
+        <h3 className="tier-name">{formatDay(dayKey)}</h3>
+        <ul className="day-events-list">
+          {dayEvents.map((event) => (
+            <li key={event.id}>
+              <button type="button" className="day-event-row" onClick={() => onSelectEvent(event)}>
+                <span className="day-event-name">
+                  {event.membersOnly ? 'Member event' : event.title}
+                  {event.membersOnly && <span className="event-badge">Members</span>}
+                </span>
+                {event.time && <span className="day-event-time">{event.time}</span>}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// Clicking an event inside the day pop-up opens this, stacked on top, with full details.
+function EventDetailModal({ event, isMember, onClose }) {
+  const closeRef = useModalBehavior(Boolean(event), onClose)
+
+  if (!event) return null
+
+  return (
+    <div
+      className="rules-modal event-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-label={event.membersOnly && !isMember ? 'Member event' : event.title}
+      onClick={onClose}
+    >
+      <div className="rules-modal-card" onClick={(clickEvent) => clickEvent.stopPropagation()}>
+        <button
+          type="button"
+          className="rules-modal-close"
+          ref={closeRef}
+          onClick={onClose}
+          aria-label="Close"
+        >
+          &times;
+        </button>
+        <EventContent event={event} isMember={isMember} />
+      </div>
+    </div>
   )
 }
 
@@ -162,7 +278,9 @@ export default function Events() {
     const now = new Date()
     return { year: now.getFullYear(), month: now.getMonth() }
   })
-  const [selected, setSelected] = useState(null)
+  const [dayKey, setDayKey] = useState(null)
+  const [detailEvent, setDetailEvent] = useState(null)
+  useScrollLock(Boolean(dayKey))
 
   const isOnCalendar = (occurrence) => {
     const goal = playersNeeded(occurrence)
@@ -195,11 +313,21 @@ export default function Events() {
   const changeMonth = (delta) => {
     const next = new Date(view.year, view.month + delta, 1)
     setView({ year: next.getFullYear(), month: next.getMonth() })
-    setSelected(null)
+    setDayKey(null)
+    setDetailEvent(null)
   }
 
-  const shown = selected ? (byDay.get(selected) ?? []) : monthEvents
-  const noEventsAtAll = allEvents.length === 0
+  const closeDayModal = () => {
+    setDayKey(null)
+    setDetailEvent(null)
+  }
+
+  // Escape and the day pop-up's own backdrop/close button should only dismiss
+  // whichever pop-up is on top: close the event detail first, then the day list.
+  const closeTopDayModal = () => {
+    if (detailEvent) setDetailEvent(null)
+    else closeDayModal()
+  }
 
   return (
     <section id="events" className="section events-section">
@@ -253,7 +381,6 @@ export default function Events() {
               'cal-day',
               key === todayKey ? 'today' : '',
               dayEvents.length ? 'has-events' : '',
-              key === selected ? 'selected' : '',
             ]
               .filter(Boolean)
               .join(' ')
@@ -278,8 +405,7 @@ export default function Events() {
                 type="button"
                 className={classes}
                 key={key}
-                onClick={() => setSelected(key === selected ? null : key)}
-                aria-pressed={key === selected}
+                onClick={() => setDayKey(key)}
                 aria-label={`${formatDay(key)}, ${dayEvents.length} ${
                   dayEvents.length === 1 ? 'event' : 'events'
                 }`}
@@ -297,27 +423,6 @@ export default function Events() {
         </p>
       </div>
 
-      <div className="events-list">
-        {selected && <h3 className="events-list-title">{formatDay(selected)}</h3>}
-
-        {!noEventsAtAll && shown.length === 0 && (
-          <p className="events-empty">Nothing scheduled here. Try another month.</p>
-        )}
-
-        {shown.length > 0 && (
-          <div className="cards">
-            {shown.map((event) => (
-              <EventCard
-                event={event}
-                isMember={isMember}
-                defaultOpen={Boolean(selected)}
-                key={`${event.id}-${selected ?? 'month'}`}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-
       {signupsOn && pending.length > 0 && (
         <div className="events-list pending-list">
           <h3 className="events-list-title">Games looking for players</h3>
@@ -327,7 +432,12 @@ export default function Events() {
           </p>
           <div className="cards">
             {pending.map((event) => (
-              <EventCard event={event} isMember={isMember} defaultOpen pending key={event.id} />
+              <article
+                className={`card event-card${event.membersOnly ? ' event-members' : ''}`}
+                key={event.id}
+              >
+                <EventContent event={event} isMember={isMember} pending />
+              </article>
             ))}
           </div>
         </div>
@@ -335,6 +445,14 @@ export default function Events() {
 
       {/* Hidden until the sign-up database is connected (see signups.config.js). */}
       {signupsOn && <Formats />}
+
+      <DayModal
+        dayKey={dayKey}
+        dayEvents={dayKey ? (byDay.get(dayKey) ?? []) : []}
+        onSelectEvent={setDetailEvent}
+        onClose={closeTopDayModal}
+      />
+      <EventDetailModal event={detailEvent} isMember={isMember} onClose={() => setDetailEvent(null)} />
     </section>
   )
 }
