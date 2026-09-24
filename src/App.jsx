@@ -105,13 +105,6 @@ function App() {
 
         <Menu />
 
-        <Gallery />
-
-        <section id="about" className="section section-alt">
-          <h2>About us</h2>
-          <p className="about-text">{about}</p>
-        </section>
-
         <section className="partner-section" aria-label="Snugglebunz">
           <a
             className="partner-button"
@@ -128,6 +121,13 @@ function App() {
               <span className="partner-sub">originalsnugglebunz.com</span>
             </span>
           </a>
+        </section>
+
+        <Gallery />
+
+        <section id="about" className="section section-alt">
+          <h2>About us</h2>
+          <p className="about-text">{about}</p>
         </section>
 
         <MembersArea />
