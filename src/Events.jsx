@@ -287,11 +287,7 @@ export default function Events() {
       </div>
 
       <div className="events-list">
-        <h3 className="events-list-title">
-          {selected ? formatDay(selected) : `Events in ${monthLabel}`}
-        </h3>
-
-        {noEventsAtAll && <p className="events-empty">Events will be posted here soon.</p>}
+        {selected && <h3 className="events-list-title">{formatDay(selected)}</h3>}
 
         {!noEventsAtAll && shown.length === 0 && (
           <p className="events-empty">Nothing scheduled here. Try another month.</p>
