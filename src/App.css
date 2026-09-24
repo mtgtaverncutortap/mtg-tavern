@@ -1324,11 +1324,15 @@ button.button {
 }
 
 .format-table tbody tr {
-  border-top: 1px dashed rgba(58, 40, 20, 0.4);
+  border-top: 2px solid rgba(58, 40, 20, 0.55);
 }
 
 .format-table tbody tr:first-child {
   border-top: 0;
+}
+
+.format-table tbody tr:nth-child(even) {
+  background: rgba(58, 40, 20, 0.08);
 }
 
 .format-table tbody tr.ready {
