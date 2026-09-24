@@ -30,13 +30,4 @@
 //     details: 'Four-player pods. Bring your deck.',
 //     minPlayers: 8,
 //   },
-export const events = [
-  {
-    id: 'commander-daily',
-    date: '2026-01-01',
-    time: 'All day',
-    title: 'Commander',
-    details: 'Sit down for a game of Commander any time. No sign-up needed.',
-    daily: true,
-  },
-]
+export const events = []
