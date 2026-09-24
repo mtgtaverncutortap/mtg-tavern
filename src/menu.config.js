@@ -27,14 +27,4 @@ export const menu = [
       { name: 'Energy drinks', price: '$4' },
     ],
   },
-  {
-    title: 'Extras',
-    items: [
-      {
-        name: 'Ice bucket',
-        price: '$2',
-        description: 'A bucket of ice to keep your drinks cool.',
-      },
-    ],
-  },
 ]
