@@ -89,10 +89,6 @@ function App() {
           </div>
         </section>
 
-        <Menu />
-
-        <Events />
-
         <section id="services" className="section">
           <h2>What we do</h2>
           <div className="cards">
@@ -104,6 +100,10 @@ function App() {
             ))}
           </div>
         </section>
+
+        <Events />
+
+        <Menu />
 
         <Gallery />
 
