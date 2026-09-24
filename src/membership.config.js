@@ -1,20 +1,26 @@
 // Membership settings.
 //
-// Fill in publicKey, and each tier's priceId and planId, after creating the
-// Memberstack account. Until a tier's priceId is filled in, its Join button
-// opens an email to contactEmail instead.
+// How it works: someone requests to join (name, email, tier). You review the
+// request on the private admin page and approve it with a Member ID. Only then
+// can that person create their password-protected account and see member content.
 //
-// The public key is designed to be visible in website code. Never paste a
-// secret key (anything starting with sk_) into this file.
-export const membership = {
-  publicKey: '', // Memberstack public key: pk_sb_... (test mode) or pk_... (live)
-  // Until a tier's priceId is filled in, its Join button opens an email to this address instead.
-  contactEmail: 'mtgtaverncutortap@gmail.com',
-}
+// The admin page is at yoursite.com/#admin. To reach it, YOU need your own
+// account with special access:
+//   1. In the Firebase console, turn on the Email/Password sign-in method
+//      (Build -> Authentication -> Sign-in method -> Email/Password -> Enable).
+//   2. Still in Authentication, go to the Users tab -> Add user. Use your own
+//      email and a password you choose. This is YOUR admin login, separate
+//      from any member's account.
+//   3. Click on the new user in that list and copy its "User UID".
+//   4. Paste that UID below as ADMIN_UID, and also into firestore.rules
+//      wherever it says ADMIN_UID (then paste the updated rules into Firebase
+//      console -> Firestore Database -> Rules -> Publish).
+export const ADMIN_UID = ''
 
-// The three membership tiers. Edit names, prices and perks freely.
-//   priceId: the Price ID of that tier's monthly plan in Memberstack: prc_...
-//   planId:  the Plan ID of the same plan: pln_... (used to tell which tier a member has)
+export const contactEmail = 'mtgtaverncutortap@gmail.com'
+
+// The three membership tiers. Edit names, prices and perks freely. `id` is
+// used to store which tier a member has, so avoid changing an existing id.
 export const tiers = [
   {
     id: 'peasant',
@@ -22,8 +28,6 @@ export const tiers = [
     name: 'Playful Peasant',
     price: '$20',
     interval: 'month',
-    priceId: '',
-    planId: '',
     perks: ['Access to tavern events', 'Full details of member-only events in the calendar'],
   },
   {
@@ -32,8 +36,6 @@ export const tiers = [
     name: 'Mage',
     price: '$40',
     interval: 'month',
-    priceId: '',
-    planId: '',
     perks: [
       'Everything in Tier 1',
       "Access to the members' room",
@@ -48,8 +50,6 @@ export const tiers = [
     name: 'Wizard',
     price: '$100',
     interval: 'month',
-    priceId: '',
-    planId: '',
     perks: [
       'Everything in Tier 1',
       'Lodge access 24/7',

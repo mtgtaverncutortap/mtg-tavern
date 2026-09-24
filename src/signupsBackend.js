@@ -1,6 +1,6 @@
-import { firebaseConfig } from './signups.config.js'
+import { firebaseConfigured, getFirebaseApp } from './firebaseApp.js'
 
-export const firebaseConfigured = Boolean(firebaseConfig.apiKey && firebaseConfig.projectId)
+export { firebaseConfigured }
 
 const pad = (n) => String(n).padStart(2, '0')
 const todayKey = () => {
@@ -22,13 +22,12 @@ export const signupId = (eventId, name) => `${eventId}__${nameSlug(name)}`
 //   signups:   every name on a list for upcoming events
 //   schedules: who the head of each event is, and the date and time they set
 export async function connectFirebase({ onData, onSchedules, onError }) {
-  const [{ initializeApp }, { getAuth, signInAnonymously }, fs] = await Promise.all([
-    import('firebase/app'),
+  const [app, { getAuth, signInAnonymously }, fs] = await Promise.all([
+    getFirebaseApp(),
     import('firebase/auth'),
     import('firebase/firestore'),
   ])
 
-  const app = initializeApp(firebaseConfig)
   const auth = getAuth(app)
   await auth.authStateReady()
   if (!auth.currentUser) await signInAnonymously(auth)

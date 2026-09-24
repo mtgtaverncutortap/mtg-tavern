@@ -1,4 +1,6 @@
+import { useEffect, useState } from 'react'
 import './App.css'
+import AdminPage from './AdminPage.jsx'
 import { Embers, Flame, Hearth, Torch } from './Fire.jsx'
 import Events from './Events.jsx'
 import Gallery from './Gallery.jsx'
@@ -6,6 +8,20 @@ import Menu from './Menu.jsx'
 import snuggleLogo from './assets/snugglebunz-logo.webp'
 import { AccountNav, MembersArea, MembershipSection } from './Membership.jsx'
 import { discordInvite as discord } from './site.config.js'
+
+// A hidden route: yoursite.com/#admin shows the membership admin page instead
+// of the normal site. Nothing links to it; you open it directly by URL.
+function useIsAdminRoute() {
+  const [isAdmin, setIsAdmin] = useState(() => window.location.hash === '#admin')
+
+  useEffect(() => {
+    const onHashChange = () => setIsAdmin(window.location.hash === '#admin')
+    window.addEventListener('hashchange', onHashChange)
+    return () => window.removeEventListener('hashchange', onHashChange)
+  }, [])
+
+  return isAdmin
+}
 
 // Edit this object to change the text on the page.
 const business = {
@@ -43,6 +59,9 @@ const business = {
 
 function App() {
   const { name, tagline, intro, cta, services, about, contact } = business
+  const isAdminRoute = useIsAdminRoute()
+
+  if (isAdminRoute) return <AdminPage />
 
   const discordButton = discord && (
     <a className="button button-discord" href={discord} target="_blank" rel="noopener noreferrer">

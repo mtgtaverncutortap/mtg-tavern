@@ -1698,6 +1698,126 @@ button.button {
   white-space: nowrap;
 }
 
+/* ---------- Membership forms (request / create account / log in) ---------- */
+
+.membership-form {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  max-width: 420px;
+  margin: 16px auto 0;
+  text-align: left;
+}
+
+.membership-form label {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.membership-form label:first-child {
+  margin-top: 0;
+}
+
+.membership-form input,
+.membership-form select,
+.membership-form textarea {
+  min-width: 0;
+  padding: 9px 12px;
+  border: 2px solid #7a4a10;
+  border-radius: 6px;
+  background: #fff8e6;
+  color: var(--ink-h);
+  font: inherit;
+}
+
+.membership-form textarea {
+  resize: vertical;
+}
+
+.membership-form .button {
+  align-self: flex-start;
+  margin-top: 14px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.membership-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 24px;
+}
+
+.members-id {
+  margin: -4px 0 12px;
+  font-weight: 600;
+}
+
+/* ---------- Admin page ---------- */
+
+.admin-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+  text-align: left;
+}
+
+.admin-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.admin-top h1 {
+  font-size: 1.8rem;
+}
+
+.format-group-title-static {
+  margin: 36px 0 14px;
+  color: var(--accent);
+  font-family: var(--heading);
+  font-size: 1rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.admin-table .players-error {
+  margin-top: 6px;
+}
+
+.admin-id-input {
+  width: 100px;
+  padding: 6px 8px;
+  border: 2px solid #7a4a10;
+  border-radius: 6px;
+  background: #fff8e6;
+  color: var(--ink-h);
+  font: inherit;
+}
+
+.admin-deny {
+  color: #8f1d12;
+}
+
+.admin-login {
+  margin: 16px 0 0;
+}
+
+.admin-decided-list {
+  margin: 0;
+  padding-left: 22px;
+  color: var(--text);
+}
+
+.admin-decided-list li {
+  margin-bottom: 4px;
+}
+
 /* ---------- Gallery ---------- */
 
 .gallery-section {
