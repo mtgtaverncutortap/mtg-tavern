@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { formatListId, formats, PLAYERS_NEEDED } from './formats.config.js'
+import FormatRulesModal from './FormatRulesModal.jsx'
 import { PlayerList } from './PlayerList.jsx'
 import { discordInvite } from './site.config.js'
 import { useSignups } from './useSignups.js'
@@ -24,7 +25,7 @@ const listEventFor = (format) => ({
 })
 
 // A format that already has players: one table row, with a second row when opened.
-function ActiveRow({ format, players, schedule }) {
+function ActiveRow({ format, players, schedule, onShowRules }) {
   const [open, setOpen] = useState(false)
   const count = players.length
   const ready = count >= PLAYERS_NEEDED
@@ -39,7 +40,9 @@ function ActiveRow({ format, players, schedule }) {
     <>
       <tr className={ready ? 'ready' : ''}>
         <th scope="row" data-label="Format">
-          {format.name}
+          <button type="button" className="format-name-button" onClick={() => onShowRules(format)}>
+            {format.name}
+          </button>
           {format.description && <span className="format-desc-inline">{format.description}</span>}
           {ready && (
             <span className="event-badge">{planned ? 'On the calendar' : 'Ready to schedule'}</span>
@@ -100,15 +103,20 @@ function ActiveRow({ format, players, schedule }) {
 }
 
 // A format nobody has joined yet: a single slim line until someone opens it.
-function CompactRow({ format, players }) {
+function CompactRow({ format, players, onShowRules }) {
   const [open, setOpen] = useState(false)
 
   return (
     <li className="format-compact-item">
       <div className="format-compact-line">
-        <span className="format-compact-name" title={format.name}>
+        <button
+          type="button"
+          className="format-compact-name"
+          title={format.name}
+          onClick={() => onShowRules(format)}
+        >
           {format.name}
-        </span>
+        </button>
         <button
           type="button"
           className="button-link"
@@ -132,6 +140,7 @@ function CompactRow({ format, players }) {
 export function Formats() {
   const { playersFor, scheduleFor } = useSignups()
   const [query, setQuery] = useState('')
+  const [rulesFormat, setRulesFormat] = useState(null)
 
   const needle = query.trim().toLowerCase()
   const rows = formats
@@ -190,7 +199,13 @@ export function Formats() {
               </thead>
               <tbody>
                 {active.map(({ format, players, schedule }) => (
-                  <ActiveRow key={format.id} format={format} players={players} schedule={schedule} />
+                  <ActiveRow
+                    key={format.id}
+                    format={format}
+                    players={players}
+                    schedule={schedule}
+                    onShowRules={setRulesFormat}
+                  />
                 ))}
               </tbody>
             </table>
@@ -203,11 +218,18 @@ export function Formats() {
           <h4 className="format-group-title">No players yet</h4>
           <ul className="format-compact">
             {empty.map(({ format, players }) => (
-              <CompactRow key={format.id} format={format} players={players} />
+              <CompactRow
+                key={format.id}
+                format={format}
+                players={players}
+                onShowRules={setRulesFormat}
+              />
             ))}
           </ul>
         </>
       )}
+
+      <FormatRulesModal format={rulesFormat} onClose={() => setRulesFormat(null)} />
     </div>
   )
 }
