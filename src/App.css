@@ -1265,12 +1265,35 @@ button.button {
 
 .format-group-title {
   margin: 36px 0 14px;
+  text-align: left;
+}
+
+.format-group-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  border: 0;
+  background: none;
   color: var(--accent);
+  font: inherit;
   font-family: var(--heading);
   font-size: 1rem;
   letter-spacing: 0.14em;
-  text-align: left;
   text-transform: uppercase;
+  cursor: pointer;
+}
+
+.format-group-toggle:hover,
+.format-group-toggle:focus-visible {
+  color: var(--accent-hover);
+  outline: none;
+}
+
+.format-group-chevron {
+  display: inline-block;
+  width: 0.8em;
+  font-size: 0.85em;
 }
 
 /* Formats that have players: a table */

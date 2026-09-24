@@ -141,6 +141,8 @@ export function Formats() {
   const { playersFor, scheduleFor } = useSignups()
   const [query, setQuery] = useState('')
   const [rulesFormat, setRulesFormat] = useState(null)
+  const [activeOpen, setActiveOpen] = useState(false)
+  const [emptyOpen, setEmptyOpen] = useState(false)
 
   const needle = query.trim().toLowerCase()
   const rows = formats
@@ -156,6 +158,10 @@ export function Formats() {
     .filter((row) => row.players.length > 0)
     .sort((a, b) => b.players.length - a.players.length || a.format.name.localeCompare(b.format.name))
   const empty = rows.filter((row) => row.players.length === 0)
+
+  // While searching, show matching results even if the section is collapsed.
+  const showActive = active.length > 0 && (activeOpen || Boolean(needle))
+  const showEmpty = empty.length > 0 && (emptyOpen || Boolean(needle))
 
   return (
     <div className="formats">
@@ -182,50 +188,78 @@ export function Formats() {
 
       {active.length > 0 && (
         <>
-          <h4 className="format-group-title">Filling up</h4>
-          <div className="format-table-wrap">
-            <table className="format-table">
-              <thead>
-                <tr>
-                  <th scope="col">Format</th>
-                  <th scope="col">Players</th>
-                  <th scope="col">Progress</th>
-                  <th scope="col">Head</th>
-                  <th scope="col">Planned</th>
-                  <th scope="col">
-                    <span className="visually-hidden">Actions</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {active.map(({ format, players, schedule }) => (
-                  <ActiveRow
-                    key={format.id}
-                    format={format}
-                    players={players}
-                    schedule={schedule}
-                    onShowRules={setRulesFormat}
-                  />
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <h4 className="format-group-title">
+            <button
+              type="button"
+              className="format-group-toggle"
+              onClick={() => setActiveOpen((value) => !value)}
+              aria-expanded={showActive}
+            >
+              <span className="format-group-chevron" aria-hidden="true">
+                {showActive ? '▾' : '▸'}
+              </span>
+              Filling up ({active.length})
+            </button>
+          </h4>
+          {showActive && (
+            <div className="format-table-wrap">
+              <table className="format-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Format</th>
+                    <th scope="col">Players</th>
+                    <th scope="col">Progress</th>
+                    <th scope="col">Head</th>
+                    <th scope="col">Planned</th>
+                    <th scope="col">
+                      <span className="visually-hidden">Actions</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {active.map(({ format, players, schedule }) => (
+                    <ActiveRow
+                      key={format.id}
+                      format={format}
+                      players={players}
+                      schedule={schedule}
+                      onShowRules={setRulesFormat}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </>
       )}
 
       {empty.length > 0 && (
         <>
-          <h4 className="format-group-title">No players yet</h4>
-          <ul className="format-compact">
-            {empty.map(({ format, players }) => (
-              <CompactRow
-                key={format.id}
-                format={format}
-                players={players}
-                onShowRules={setRulesFormat}
-              />
-            ))}
-          </ul>
+          <h4 className="format-group-title">
+            <button
+              type="button"
+              className="format-group-toggle"
+              onClick={() => setEmptyOpen((value) => !value)}
+              aria-expanded={showEmpty}
+            >
+              <span className="format-group-chevron" aria-hidden="true">
+                {showEmpty ? '▾' : '▸'}
+              </span>
+              No players yet ({empty.length})
+            </button>
+          </h4>
+          {showEmpty && (
+            <ul className="format-compact">
+              {empty.map(({ format, players }) => (
+                <CompactRow
+                  key={format.id}
+                  format={format}
+                  players={players}
+                  onShowRules={setRulesFormat}
+                />
+              ))}
+            </ul>
+          )}
         </>
       )}
 
