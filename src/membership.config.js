@@ -56,7 +56,6 @@ export const tiers = [
       'A key to a storage locker for your cards, drinks, cigars and more',
       'Buy booster packs with no markup',
       'No fee to use our rentable pre-constructed decks',
-      'Half-price glass and ice',
       'Birthday gift: a free booster pack, a Snugglebunz and a butterbeer',
     ],
   },
