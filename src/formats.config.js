@@ -13,6 +13,9 @@
 //                the text below once you've decided them.
 //   date, time:  optional. Give a format a date (YYYY-MM-DD) and, once its list is full,
 //                it is added to the calendar on that date automatically.
+//   daily:       true = always on the calendar, every day, all day, no matter how
+//                many names are on the list. Still needs a `date` (any date works,
+//                it's just the anchor) and a `time` (shown as-is, e.g. 'All day').
 export const PLAYERS_NEEDED = 8
 
 // The id every list of names is stored under.
@@ -48,6 +51,9 @@ export const formats = [
     name: 'Commander (24/7)',
     rules:
       'Standard Commander rules: a 100-card singleton deck built around one legendary commander, starting at 40 life. Pull up a chair any time, day or night.',
+    date: '2026-01-01',
+    time: 'All day',
+    daily: true,
   },
   {
     id: 'commander-budget',

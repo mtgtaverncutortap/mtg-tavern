@@ -64,7 +64,9 @@ function occurrencesInMonth(list, year, month) {
 }
 
 // Games that need a minimum number of players stay off the calendar until they have them.
-const playersNeeded = (occurrence) => (occurrence.weekly ? null : (occurrence.minPlayers ?? null))
+// Weekly and daily events are always on the calendar, regardless of sign-ups.
+const playersNeeded = (occurrence) =>
+  occurrence.weekly || occurrence.daily ? null : (occurrence.minPlayers ?? null)
 
 // A modal's onClose is a fresh function every render, which would otherwise make this
 // effect tear down and rebuild on every unrelated re-render. Reading it through a ref
@@ -269,7 +271,8 @@ export default function Events() {
         details: format.description,
         minPlayers: PLAYERS_NEEDED,
         signup: true,
-        headable: true,
+        headable: !format.daily,
+        daily: format.daily,
       },
     ]
   })

@@ -21,7 +21,7 @@ const listEventFor = (format) => ({
   occId: formatListId(format.id),
   key: '9999-12-31',
   title: format.name,
-  headable: true,
+  headable: !format.daily,
 })
 
 // A format that already has players: one table row, with a second row when opened.
@@ -32,20 +32,26 @@ function ActiveRow({ format, players, schedule, onShowRules }) {
 
   const plannedDate = schedule?.date || format.date
   const plannedTime = schedule?.time || format.time
-  const planned = plannedDate
-    ? `${formatDay(plannedDate)}${plannedTime ? ` · ${plannedTime}` : ''}`
-    : null
+  const planned = format.daily
+    ? `Every day${plannedTime ? ` · ${plannedTime}` : ''}`
+    : plannedDate
+      ? `${formatDay(plannedDate)}${plannedTime ? ` · ${plannedTime}` : ''}`
+      : null
 
   return (
     <>
-      <tr className={ready ? 'ready' : ''}>
+      <tr className={ready || format.daily ? 'ready' : ''}>
         <th scope="row" data-label="Format">
           <button type="button" className="format-name-button" onClick={() => onShowRules(format)}>
             {format.name}
           </button>
           {format.description && <span className="format-desc-inline">{format.description}</span>}
-          {ready && (
-            <span className="event-badge">{planned ? 'On the calendar' : 'Ready to schedule'}</span>
+          {format.daily ? (
+            <span className="event-badge">On the calendar every day</span>
+          ) : (
+            ready && (
+              <span className="event-badge">{planned ? 'On the calendar' : 'Ready to schedule'}</span>
+            )
           )}
         </th>
         <td data-label="Players">
