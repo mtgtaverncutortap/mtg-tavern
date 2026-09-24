@@ -28,13 +28,8 @@ export const menu = [
     ],
   },
   {
-    title: 'Bring your own',
+    title: 'Extras',
     items: [
-      {
-        name: 'BYOB corkage fee',
-        price: '$5',
-        description: 'A fee applies when you bring your own drinks.',
-      },
       {
         name: 'Ice bucket',
         price: '$2',

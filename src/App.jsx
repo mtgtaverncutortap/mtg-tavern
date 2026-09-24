@@ -25,7 +25,7 @@ const business = {
     },
     {
       title: 'Food & Drink',
-      text: 'Great food and drinks to enjoy while you play. Try our butterbeer, or bring your own beer.',
+      text: 'Great food and drinks to enjoy while you play. Try our butterbeer.',
     },
     {
       title: 'Lounge Access',
