@@ -7,10 +7,11 @@
 //   details:     a short description
 //   membersOnly: true = visitors only see "Member event"; members see everything
 //   weekly:      true = repeats every week on the same weekday
-//   until:       optional 'YYYY-MM-DD' last date for a weekly event
+//   daily:       true = repeats every single day, starting from `date`
+//   until:       optional 'YYYY-MM-DD' last date for a weekly or daily event
 //   signup:      true = people can put their name on the list; click the event to see who is in
 //   minPlayers:  e.g. 8 = the game stays OFF the calendar until this many names are on its list.
-//                Until then it shows under "Games looking for players". Not used with weekly.
+//                Until then it shows under "Games looking for players". Not used with weekly/daily.
 //
 // Examples:
 //   {
@@ -29,4 +30,13 @@
 //     details: 'Four-player pods. Bring your deck.',
 //     minPlayers: 8,
 //   },
-export const events = []
+export const events = [
+  {
+    id: 'commander-daily',
+    date: '2026-01-01',
+    time: 'All day',
+    title: 'Commander',
+    details: 'Sit down for a game of Commander any time. No sign-up needed.',
+    daily: true,
+  },
+]

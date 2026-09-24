@@ -26,7 +26,7 @@ const makeOccurrence = (event, index, key) => ({
   occId: event.listId ?? `${event.id ?? `event-${index}`}:${key}`,
 })
 
-// Every date an event happens on inside the given month (weekly events repeat).
+// Every date an event happens on inside the given month (daily and weekly events repeat).
 function occurrencesInMonth(list, year, month) {
   const first = new Date(year, month, 1)
   const last = new Date(year, month + 1, 0)
@@ -35,13 +35,24 @@ function occurrencesInMonth(list, year, month) {
   list.forEach((event, index) => {
     const start = parseKey(event.date)
 
-    if (!event.weekly) {
+    if (!event.weekly && !event.daily) {
       if (start >= first && start <= last) found.push(makeOccurrence(event, index, event.date))
       return
     }
 
     const until = event.until ? parseKey(event.until) : last
     const stop = until < last ? until : last
+
+    if (event.daily) {
+      const cursor = new Date(Math.max(start, first))
+      for (; cursor <= stop; cursor.setDate(cursor.getDate() + 1)) {
+        found.push(makeOccurrence(event, index, toKey(cursor)))
+      }
+      return
+    }
+
+    // Weekly: keep the same weekday as the start date, so nudge forward in 7-day
+    // steps rather than jumping straight to the first of the month.
     const cursor = new Date(start)
     while (cursor < first) cursor.setDate(cursor.getDate() + 7)
     for (; cursor <= stop; cursor.setDate(cursor.getDate() + 7)) {
