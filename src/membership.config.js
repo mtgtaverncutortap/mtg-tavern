@@ -15,7 +15,7 @@
 //   4. Paste that UID below as ADMIN_UID, and also into firestore.rules
 //      wherever it says ADMIN_UID (then paste the updated rules into Firebase
 //      console -> Firestore Database -> Rules -> Publish).
-export const ADMIN_UID = ''
+export const ADMIN_UID = 'EFvCB38O8Pac40buJ6VP6tVa30x1'
 
 export const contactEmail = 'mtgtaverncutortap@gmail.com'
 
