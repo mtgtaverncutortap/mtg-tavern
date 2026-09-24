@@ -150,7 +150,7 @@ export function Formats() {
 
   return (
     <div className="formats">
-      <h3 className="events-list-title">Sign up for a format</h3>
+      <h3 className="events-list-title">Sign up for a Magic format</h3>
       <p className="pending-intro">
         Pick the formats you want to play and put your name on the list. Once {PLAYERS_NEEDED}{' '}
         players are on a list, we pick a date and add the game to the calendar
