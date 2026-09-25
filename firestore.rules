@@ -2,11 +2,12 @@ rules_version = '2';
 
 // Paste these into Firebase console > Firestore Database > Rules, then Publish.
 //
-// signups:         anyone can read the lists and add their own name (as short text);
-//                   only the person who added a name can remove it.
+// signups:         anyone can read the lists; only a logged-in, verified, approved
+//                   member can add a name. Only the person who added a name can remove it.
 // schedules:        anyone can read who the head of an event is and the date/time they set.
-//                   The first person to volunteer becomes head; only that person can
-//                   change the date/time or step down.
+//                   Only a logged-in member can become head. The first member to
+//                   volunteer becomes head; only that person can change the date/time
+//                   or step down.
 // joinRequests:     anyone signed in (even anonymously) can submit a membership
 //                   request; only the admin account can read, approve or deny them.
 // approvedEmails:   a public "is this email approved" check (no names or IDs), used
@@ -19,6 +20,15 @@ rules_version = '2';
 // (see src/membership.config.js for how to get it), then Publish.
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // A real (non-anonymous), verified account with an approved membership record.
+    // Used to require members-only for joining events.
+    function isMember() {
+      return request.auth != null
+        && request.auth.token.email != null
+        && request.auth.token.email_verified == true
+        && exists(/databases/$(database)/documents/approvedMembers/$(request.auth.token.email));
+    }
 
     match /joinRequests/{requestId} {
       allow create: if request.auth != null
@@ -55,7 +65,7 @@ service cloud.firestore {
     match /signups/{signupId} {
       allow read: if true;
 
-      allow create: if request.auth != null
+      allow create: if isMember()
         && request.resource.data.keys().hasOnly(['eventId', 'eventDate', 'name', 'uid', 'createdAt'])
         && request.resource.data.uid == request.auth.uid
         && request.resource.data.name is string
@@ -75,7 +85,7 @@ service cloud.firestore {
     match /schedules/{listId} {
       allow read: if true;
 
-      allow create: if request.auth != null
+      allow create: if isMember()
         && request.resource.data.keys().hasOnly(['headUid', 'headName', 'date', 'time', 'updatedAt'])
         && request.resource.data.headUid == request.auth.uid
         && request.resource.data.headName is string
@@ -87,7 +97,7 @@ service cloud.firestore {
         && request.resource.data.time.size() <= 20
         && request.resource.data.updatedAt == request.time;
 
-      allow update: if request.auth != null
+      allow update: if isMember()
         && resource.data.headUid == request.auth.uid
         && request.resource.data.keys().hasOnly(['headUid', 'headName', 'date', 'time', 'updatedAt'])
         && request.resource.data.headUid == resource.data.headUid

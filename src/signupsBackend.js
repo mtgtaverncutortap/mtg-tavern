@@ -17,28 +17,33 @@ export const nameSlug = (name) =>
 
 export const signupId = (eventId, name) => `${eventId}__${nameSlug(name)}`
 
-// Connects to Firestore, signs the browser in anonymously (so people can remove
-// their own name and, if they volunteered, run their event), and streams:
+// Connects to Firestore (no sign-in of its own — joining an event needs a real,
+// logged-in member account, handled by the membership system) and streams:
 //   signups:   every name on a list for upcoming events
 //   schedules: who the head of each event is, and the date and time they set
+// The "uid" passed to onData always reflects whichever real member is currently
+// logged in (or null), so "is this my entry" stays correct as people log in or out.
 export async function connectFirebase({ onData, onSchedules, onError }) {
-  const [app, { getAuth, signInAnonymously }, fs] = await Promise.all([
+  const [app, { getAuth, onAuthStateChanged }, fs] = await Promise.all([
     getFirebaseApp(),
     import('firebase/auth'),
     import('firebase/firestore'),
   ])
 
   const auth = getAuth(app)
-  await auth.authStateReady()
-  if (!auth.currentUser) await signInAnonymously(auth)
-  const uid = auth.currentUser.uid
-
   const db = fs.getFirestore(app)
   const upcoming = fs.query(fs.collection(db, 'signups'), fs.where('eventDate', '>=', todayKey()))
 
+  let latestRows = []
+  let currentUid = null
+  const emitData = () => onData(latestRows, currentUid)
+
   const stopSignups = fs.onSnapshot(
     upcoming,
-    (snapshot) => onData(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })), uid),
+    (snapshot) => {
+      latestRows = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))
+      emitData()
+    },
     onError,
   )
   const stopSchedules = fs.onSnapshot(
@@ -46,15 +51,25 @@ export async function connectFirebase({ onData, onSchedules, onError }) {
     (snapshot) => onSchedules(snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))),
     onError,
   )
+  // Anonymous sessions don't count as "me" here — only a real member account does.
+  const stopAuth = onAuthStateChanged(auth, (user) => {
+    currentUid = user && !user.isAnonymous ? user.uid : null
+    emitData()
+  })
+
+  const requireUid = () => {
+    const uid = auth.currentUser?.isAnonymous ? null : auth.currentUser?.uid
+    if (!uid) throw new Error('not-signed-in')
+    return uid
+  }
 
   return {
-    uid,
     add: (event, name) =>
       fs.setDoc(fs.doc(db, 'signups', signupId(event.occId, name)), {
         eventId: event.occId,
         eventDate: event.key,
         name,
-        uid,
+        uid: requireUid(),
         createdAt: fs.serverTimestamp(),
       }),
     remove: (id) => fs.deleteDoc(fs.doc(db, 'signups', id)),
@@ -62,7 +77,7 @@ export async function connectFirebase({ onData, onSchedules, onError }) {
     // Only succeeds if nobody is head yet (the rules reject changing someone else's document).
     claimHead: (listId, name) =>
       fs.setDoc(fs.doc(db, 'schedules', listId), {
-        headUid: uid,
+        headUid: requireUid(),
         headName: name,
         date: '',
         time: '',
@@ -79,6 +94,7 @@ export async function connectFirebase({ onData, onSchedules, onError }) {
     disconnect: () => {
       stopSignups()
       stopSchedules()
+      stopAuth()
     },
   }
 }

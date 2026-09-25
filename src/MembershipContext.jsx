@@ -116,6 +116,7 @@ export function MembershipProvider({ children }) {
       isMember: Boolean(record),
       tier,
       memberId: record?.memberId ?? null,
+      memberName: record?.name ?? null,
       error,
       requestJoin,
       createAccount,

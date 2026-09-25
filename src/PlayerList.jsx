@@ -1,5 +1,6 @@
 import { useId, useState } from 'react'
 import { discordInvite } from './site.config.js'
+import { useMembership } from './useMembership.js'
 import { useSignups } from './useSignups.js'
 
 const pad = (n) => String(n).padStart(2, '0')
@@ -105,9 +106,10 @@ function HeadPanel({ event, schedule }) {
 // The list of names for one event, plus the form to add your own.
 export function PlayerList({ event, players }) {
   const { enabled, ready, error, addPlayer, removePlayer, scheduleFor, claimHead } = useSignups()
+  const { user, verified, isMember, memberName } = useMembership()
   const inputId = useId()
   const headId = useId()
-  const [name, setName] = useState('')
+  const [name, setName] = useState(memberName ?? '')
   const [wantsHead, setWantsHead] = useState(false)
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
@@ -170,7 +172,7 @@ export function PlayerList({ event, players }) {
         </ol>
       )}
 
-      {enabled ? (
+      {enabled && isMember ? (
         <form className="players-form" onSubmit={submit}>
           <label className="visually-hidden" htmlFor={inputId}>
             Your name
@@ -218,6 +220,18 @@ export function PlayerList({ event, players }) {
             </p>
           )}
         </form>
+      ) : enabled && !user ? (
+        <p className="players-note">
+          Members can join events. <a href="#membership-login">Log in</a> or{' '}
+          <a href="#membership-join">request membership</a>.
+        </p>
+      ) : enabled && !verified ? (
+        <p className="players-note">Verify your email to join events. Check your inbox for the link.</p>
+      ) : enabled && !isMember ? (
+        <p className="players-note">
+          Your membership isn&rsquo;t active. <a href="#membership-join">Request membership</a> to
+          join events.
+        </p>
       ) : (
         <p className="players-note">Sign-ups aren&rsquo;t online yet.</p>
       )}

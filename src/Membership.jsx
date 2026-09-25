@@ -1,6 +1,12 @@
-import { useId, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { contactEmail, memberContent, tiers } from './membership.config.js'
 import { useMembership } from './useMembership.js'
+
+// Scrolls an element into view a moment after it appears, so opening a form
+// that renders below the current scroll position is actually visible.
+function scrollToSoon(ref) {
+  ref.current?.scrollIntoView({ behavior: 'instant', block: 'start' })
+}
 
 const mailtoRequest = ({ name, email, tierName, note }) => {
   const subject = `Membership request: ${tierName}`
@@ -17,10 +23,10 @@ export function AccountNav() {
   if (!user) {
     return (
       <div className="nav-account">
-        <a className="nav-login" href="#membership">
+        <a className="nav-login" href="#membership-login">
           Log in
         </a>
-        <a className="nav-join" href="#membership">
+        <a className="nav-join" href="#membership-join">
           Join
         </a>
       </div>
@@ -234,12 +240,40 @@ export function MembershipSection() {
     useMembership()
   const [open, setOpen] = useState(null) // 'request' | 'create' | 'login' | null
   const [requestTier, setRequestTier] = useState(tiers[0]?.id)
+  const footerRef = useRef(null)
+
+  // The nav's Join / Log in links point at #membership-join / #membership-login so
+  // clicking them opens the right form here, instead of just landing on the section.
+  useEffect(() => {
+    const applyHash = () => {
+      if (window.location.hash === '#membership-join') {
+        setOpen('request')
+        scrollToSoon(footerRef)
+      } else if (window.location.hash === '#membership-login') {
+        setOpen('login')
+        scrollToSoon(footerRef)
+      }
+    }
+    applyHash()
+    window.addEventListener('hashchange', applyHash)
+    return () => window.removeEventListener('hashchange', applyHash)
+  }, [])
 
   if (isMember) return null
 
   const openWithTier = (tierId) => {
     setRequestTier(tierId)
     setOpen('request')
+    scrollToSoon(footerRef)
+  }
+
+  // Clears the #membership-join / #membership-login hash on close, so clicking the
+  // same nav link again later still triggers a hash change and reopens the form.
+  const closeForm = () => {
+    setOpen(null)
+    if (window.location.hash === '#membership-join' || window.location.hash === '#membership-login') {
+      history.replaceState(null, '', '#membership')
+    }
   }
 
   return (
@@ -274,7 +308,7 @@ export function MembershipSection() {
         ))}
       </div>
 
-      <div className="tiers-footer">
+      <div className="tiers-footer" ref={footerRef}>
         {!enabled && <p>Memberships are opening soon. Check back shortly!</p>}
 
         {enabled && !user && (
@@ -282,16 +316,30 @@ export function MembershipSection() {
             {open === 'request' ? (
               <>
                 <RequestForm defaultTierId={requestTier} />
-                <button type="button" className="button-link" onClick={() => setOpen(null)}>
+                <button type="button" className="button-link" onClick={closeForm}>
                   Close
                 </button>
               </>
             ) : (
               <div className="membership-actions">
-                <button type="button" className="button-link" onClick={() => setOpen('create')}>
+                <button
+                  type="button"
+                  className="button-link"
+                  onClick={() => {
+                    setOpen('create')
+                    scrollToSoon(footerRef)
+                  }}
+                >
                   Already approved? Create your account
                 </button>
-                <button type="button" className="button-link" onClick={() => setOpen('login')}>
+                <button
+                  type="button"
+                  className="button-link"
+                  onClick={() => {
+                    setOpen('login')
+                    scrollToSoon(footerRef)
+                  }}
+                >
                   Already have an account? Log in
                 </button>
               </div>
@@ -299,7 +347,7 @@ export function MembershipSection() {
             {open === 'create' && (
               <>
                 <CreateAccountForm />
-                <button type="button" className="button-link" onClick={() => setOpen(null)}>
+                <button type="button" className="button-link" onClick={closeForm}>
                   Close
                 </button>
               </>
@@ -307,7 +355,7 @@ export function MembershipSection() {
             {open === 'login' && (
               <>
                 <LoginForm />
-                <button type="button" className="button-link" onClick={() => setOpen(null)}>
+                <button type="button" className="button-link" onClick={closeForm}>
                   Close
                 </button>
               </>
