@@ -59,12 +59,7 @@ export function IdentityPrompt() {
   return (
     <div className="rules-modal" role="dialog" aria-modal="true" aria-label="Who is this?">
       <div className="rules-modal-card">
-        <p className="tier-label">One more thing</p>
-        <h3 className="tier-name">Who&rsquo;s logging in?</h3>
-        <p className="rules-modal-text">
-          This login is shared. Let us know who you are so things like approvals show the right
-          name.
-        </p>
+        <h3 className="tier-name">Who?</h3>
         <div className="identity-options">
           {identityOptions.map((name) => (
             <button
