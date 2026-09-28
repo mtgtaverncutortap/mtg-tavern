@@ -29,7 +29,7 @@ const business = {
   tagline: 'Magic the Gathering cafe!',
   intro:
     'An enhanced environment to play in while experiencing food, drinks, and lounge access.',
-  cta: 'Visit the tavern',
+  cta: 'Become a member',
   services: [
     {
       title: 'Packs & Singles',
@@ -98,7 +98,7 @@ function App() {
               <h1>{tagline}</h1>
               <p className="hero-intro">{intro}</p>
               <div className="hero-actions">
-                <a className="button" href="#contact">
+                <a className="button" href="#membership-join">
                   {cta}
                 </a>
                 {discordButton}

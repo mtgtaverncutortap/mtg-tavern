@@ -29,9 +29,6 @@ export function AccountNav() {
         <a className="nav-login" href="#membership-login">
           Log in
         </a>
-        <a className="nav-join" href="#membership-join">
-          Join
-        </a>
       </div>
     )
   }
