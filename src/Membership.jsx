@@ -108,7 +108,15 @@ function RequestForm({ defaultTierId }) {
       />
 
       <label htmlFor={tierId}>Tier</label>
-      <select id={tierId} value={tier} onChange={(event) => setTier(event.target.value)}>
+      <select
+        id={tierId}
+        value={tier}
+        onChange={(event) => setTier(event.target.value)}
+        required
+      >
+        <option value="" disabled>
+          No selection
+        </option>
         {tiers.map((t) => (
           <option value={t.id} key={t.id}>
             {t.name} ({t.price}/{t.interval})
@@ -239,7 +247,7 @@ export function MembershipSection() {
   const { enabled, user, verified, pending, isMember, resendVerification, logout, error } =
     useMembership()
   const [open, setOpen] = useState(null) // 'request' | 'create' | 'login' | null
-  const [requestTier, setRequestTier] = useState(tiers[0]?.id)
+  const [requestTier, setRequestTier] = useState('')
   const footerRef = useRef(null)
 
   // The nav's Join / Log in links point at #membership-join / #membership-login so
@@ -248,10 +256,8 @@ export function MembershipSection() {
     const applyHash = () => {
       if (window.location.hash === '#membership-join') {
         setOpen('request')
-        scrollToSoon(footerRef)
       } else if (window.location.hash === '#membership-login') {
         setOpen('login')
-        scrollToSoon(footerRef)
       }
     }
     applyHash()
@@ -259,12 +265,18 @@ export function MembershipSection() {
     return () => window.removeEventListener('hashchange', applyHash)
   }, [])
 
+  // Scroll once the form has actually rendered into the footer, not before — the
+  // footer is still short (and the page not yet tall enough to scroll that far)
+  // until React commits the newly opened form.
+  useEffect(() => {
+    if (open) scrollToSoon(footerRef)
+  }, [open])
+
   if (isMember) return null
 
   const openWithTier = (tierId) => {
     setRequestTier(tierId)
     setOpen('request')
-    scrollToSoon(footerRef)
   }
 
   // Clears the #membership-join / #membership-login hash on close, so clicking the
@@ -325,20 +337,14 @@ export function MembershipSection() {
                 <button
                   type="button"
                   className="button-link"
-                  onClick={() => {
-                    setOpen('create')
-                    scrollToSoon(footerRef)
-                  }}
+                  onClick={() => setOpen('create')}
                 >
                   Already approved? Create your account
                 </button>
                 <button
                   type="button"
                   className="button-link"
-                  onClick={() => {
-                    setOpen('login')
-                    scrollToSoon(footerRef)
-                  }}
+                  onClick={() => setOpen('login')}
                 >
                   Already have an account? Log in
                 </button>
