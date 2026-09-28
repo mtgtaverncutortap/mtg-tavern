@@ -3,9 +3,12 @@ import { contactEmail, memberContent, tiers } from './membership.config.js'
 import { useMembership } from './useMembership.js'
 
 // Scrolls an element into view a moment after it appears, so opening a form
-// that renders below the current scroll position is actually visible.
+// that renders below the current scroll position is actually visible. Smooth
+// (not instant) so a long jump animates into place instead of asking the
+// browser to rasterize a distant part of the page in a single frame, which
+// can briefly paint blank on slower devices.
 function scrollToSoon(ref) {
-  ref.current?.scrollIntoView({ behavior: 'instant', block: 'start' })
+  ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
 const mailtoRequest = ({ name, email, tierName, note }) => {
