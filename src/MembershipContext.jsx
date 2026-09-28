@@ -141,17 +141,21 @@ export function MembershipProvider({ children }) {
     const verified = Boolean(user?.emailVerified)
     const tier = record ? (tiers.find((t) => t.id === record.tier) ?? null) : null
     const identityOptions = user ? (sharedIdentities[user.email] ?? null) : null
+    const isAdmin = Boolean(user) && user.uid === ADMIN_UID
     return {
       enabled,
       loading,
       user,
       verified,
       pending: Boolean(user) && verified && !record,
-      isMember: Boolean(record),
+      // The admin account can always join events, member-only or not, even
+      // without an approvedMembers record of its own (matched server-side in
+      // firestore.rules' isMember()).
+      isMember: Boolean(record) || isAdmin,
       tier,
       memberId: record?.memberId ?? null,
-      memberName: record?.name ?? null,
-      isAdmin: Boolean(user) && user.uid === ADMIN_UID,
+      memberName: identity ?? record?.name ?? null,
+      isAdmin,
       identityOptions,
       identity,
       setIdentity,

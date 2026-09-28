@@ -21,13 +21,19 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // A real (non-anonymous), verified account with an approved membership record.
-    // Used to require members-only for joining events.
+    function isAdmin() {
+      return request.auth != null && request.auth.uid == 'EFvCB38O8Pac40buJ6VP6tVa30x1';
+    }
+
+    // A real (non-anonymous), verified account with an approved membership record
+    // — or the admin account, which can always join events. Used to require
+    // members-only for joining events.
     function isMember() {
-      return request.auth != null
-        && request.auth.token.email != null
-        && request.auth.token.email_verified == true
-        && exists(/databases/$(database)/documents/approvedMembers/$(request.auth.token.email));
+      return isAdmin()
+        || (request.auth != null
+          && request.auth.token.email != null
+          && request.auth.token.email_verified == true
+          && exists(/databases/$(database)/documents/approvedMembers/$(request.auth.token.email)));
     }
 
     match /joinRequests/{requestId} {

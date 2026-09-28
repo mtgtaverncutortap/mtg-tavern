@@ -1,4 +1,4 @@
-import { useId, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import { discordInvite } from './site.config.js'
 import { useMembership } from './useMembership.js'
 import { useSignups } from './useSignups.js'
@@ -113,6 +113,13 @@ export function PlayerList({ event, players }) {
   const [wantsHead, setWantsHead] = useState(false)
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
+
+  // memberName isn't known yet on first render for a shared login (it comes
+  // from localStorage, read after mount) — fill it in once it arrives, but
+  // don't clobber anything the person already typed.
+  useEffect(() => {
+    setName((current) => current || memberName || '')
+  }, [memberName])
 
   const schedule = event.headable ? scheduleFor(event.occId) : null
   const canVolunteer = Boolean(event.headable && !schedule)
