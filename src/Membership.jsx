@@ -284,6 +284,9 @@ export function MembershipSection() {
 
   // The nav's Join / Log in links point at #membership-join / #membership-login so
   // clicking them opens the right form here, instead of just landing on the section.
+  // Only react to hash changes that happen after mount (an actual link click) —
+  // not the hash already in the URL on load, so refreshing the page while one of
+  // these hashes is set lands at the top instead of jumping back into the form.
   useEffect(() => {
     const applyHash = () => {
       if (window.location.hash === '#membership-join') {
@@ -292,7 +295,6 @@ export function MembershipSection() {
         setOpen('login')
       }
     }
-    applyHash()
     window.addEventListener('hashchange', applyHash)
     return () => window.removeEventListener('hashchange', applyHash)
   }, [])
