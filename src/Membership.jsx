@@ -442,14 +442,18 @@ export function MembershipSection() {
 
 // The members-only page. Only rendered for approved, verified members.
 export function MembersArea() {
-  const { isMember, user, tier, memberId, error, logout } = useMembership()
+  const { isMember, user, memberName, tier, memberId, error, logout } = useMembership()
 
   if (!isMember) return null
 
   return (
     <section id="members" className="section members-section">
-      <h2>{memberContent.welcome}</h2>
-      {user?.email && <p className="members-email">Logged in as {user.email}</p>}
+      <h2>{memberName ? `Welcome, ${memberName}!` : memberContent.welcome}</h2>
+      {user?.email && (
+        <p className="members-email">
+          Logged in as {memberName ? `${memberName} (${user.email})` : user.email}
+        </p>
+      )}
       <p className="members-announcement">{memberContent.announcement}</p>
 
       {tier && (
