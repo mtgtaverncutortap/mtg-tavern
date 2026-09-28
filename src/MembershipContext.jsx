@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { tiers } from './membership.config.js'
+import { ADMIN_UID, sharedIdentities, tiers } from './membership.config.js'
 import {
   createAccount as backendCreateAccount,
   firebaseConfigured,
@@ -14,11 +14,17 @@ import { MembershipContext } from './useMembership.js'
 
 const enabled = firebaseConfigured
 
+// Some logins (see membership.config.js) are shared by more than one real
+// person. Which one is currently using the login is stored per browser, not
+// per account, since that's what actually distinguishes them.
+const identityStorageKey = (uid) => `mtg-tavern-identity:${uid}`
+
 export function MembershipProvider({ children }) {
   const [loading, setLoading] = useState(enabled)
   const [user, setUser] = useState(null)
   const [record, setRecord] = useState(null)
   const [error, setError] = useState('')
+  const [identity, setIdentityState] = useState(null)
 
   useEffect(() => {
     if (!enabled) return undefined
@@ -69,6 +75,33 @@ export function MembershipProvider({ children }) {
     }
   }, [user])
 
+  // Load whichever identity this browser previously picked for this account.
+  useEffect(() => {
+    if (!user) {
+      setIdentityState(null)
+      return
+    }
+    try {
+      setIdentityState(localStorage.getItem(identityStorageKey(user.uid)))
+    } catch {
+      setIdentityState(null)
+    }
+  }, [user])
+
+  const setIdentity = useCallback(
+    (name) => {
+      setIdentityState(name)
+      if (!user) return
+      try {
+        if (name) localStorage.setItem(identityStorageKey(user.uid), name)
+        else localStorage.removeItem(identityStorageKey(user.uid))
+      } catch {
+        // Private browsing or storage disabled: identity just won't persist.
+      }
+    },
+    [user],
+  )
+
   const requestJoin = useCallback(async (details) => {
     if (!enabled) return { ok: false, message: 'Sign-ups are not available right now.' }
     setError('')
@@ -107,6 +140,7 @@ export function MembershipProvider({ children }) {
   const value = useMemo(() => {
     const verified = Boolean(user?.emailVerified)
     const tier = record ? (tiers.find((t) => t.id === record.tier) ?? null) : null
+    const identityOptions = user ? (sharedIdentities[user.email] ?? null) : null
     return {
       enabled,
       loading,
@@ -117,6 +151,10 @@ export function MembershipProvider({ children }) {
       tier,
       memberId: record?.memberId ?? null,
       memberName: record?.name ?? null,
+      isAdmin: Boolean(user) && user.uid === ADMIN_UID,
+      identityOptions,
+      identity,
+      setIdentity,
       error,
       requestJoin,
       createAccount,
@@ -124,7 +162,19 @@ export function MembershipProvider({ children }) {
       logout,
       resendVerification,
     }
-  }, [loading, user, record, error, requestJoin, createAccount, login, logout, resendVerification])
+  }, [
+    loading,
+    user,
+    record,
+    identity,
+    setIdentity,
+    error,
+    requestJoin,
+    createAccount,
+    login,
+    logout,
+    resendVerification,
+  ])
 
   return <MembershipContext.Provider value={value}>{children}</MembershipContext.Provider>
 }

@@ -148,7 +148,7 @@ export async function adminWatchRequests(onData, onError) {
   )
 }
 
-export async function adminApproveRequest(request, memberId) {
+export async function adminApproveRequest(request, memberId, decidedBy) {
   const { db, fs } = await getAuthAndDb()
   const email = normalizeEmail(request.email)
   const batch = fs.writeBatch(db)
@@ -159,13 +159,20 @@ export async function adminApproveRequest(request, memberId) {
     memberId,
     approvedAt: fs.serverTimestamp(),
   })
-  batch.update(fs.doc(db, 'joinRequests', request.id), { status: 'approved', memberId })
+  batch.update(fs.doc(db, 'joinRequests', request.id), {
+    status: 'approved',
+    memberId,
+    ...(decidedBy ? { decidedBy } : {}),
+  })
   await batch.commit()
 }
 
-export async function adminDenyRequest(request) {
+export async function adminDenyRequest(request, decidedBy) {
   const { db, fs } = await getAuthAndDb()
-  await fs.updateDoc(fs.doc(db, 'joinRequests', request.id), { status: 'denied' })
+  await fs.updateDoc(fs.doc(db, 'joinRequests', request.id), {
+    status: 'denied',
+    ...(decidedBy ? { decidedBy } : {}),
+  })
 }
 
 export async function adminWatchMembers(onData, onError) {

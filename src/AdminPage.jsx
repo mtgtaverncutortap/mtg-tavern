@@ -60,7 +60,7 @@ function AdminLoginForm() {
   )
 }
 
-function RequestRow({ request }) {
+function RequestRow({ request, decidedBy }) {
   const [memberId, setMemberId] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
@@ -73,7 +73,7 @@ function RequestRow({ request }) {
     setBusy(true)
     setError('')
     try {
-      await adminApproveRequest(request, memberId.trim())
+      await adminApproveRequest(request, memberId.trim(), decidedBy)
     } catch {
       setError('Could not approve. Please try again.')
     }
@@ -84,7 +84,7 @@ function RequestRow({ request }) {
     setBusy(true)
     setError('')
     try {
-      await adminDenyRequest(request)
+      await adminDenyRequest(request, decidedBy)
     } catch {
       setError('Could not update. Please try again.')
     }
@@ -121,7 +121,7 @@ function RequestRow({ request }) {
 }
 
 function AdminTools() {
-  const { logout } = useMembership()
+  const { logout, identity, identityOptions, setIdentity } = useMembership()
   const [requests, setRequests] = useState(null)
   const [members, setMembers] = useState(null)
   const [error, setError] = useState('')
@@ -178,9 +178,25 @@ function AdminTools() {
     <div className="admin-page">
       <div className="admin-top">
         <h1>Membership admin</h1>
-        <button type="button" className="button-link" onClick={logout}>
-          Log out
-        </button>
+        <div className="admin-top-account">
+          {identity && (
+            <p className="admin-identity">
+              Logged in as {identity}
+              {identityOptions && (
+                <>
+                  {' '}
+                  &middot;{' '}
+                  <button type="button" className="button-link" onClick={() => setIdentity(null)}>
+                    Not {identity}?
+                  </button>
+                </>
+              )}
+            </p>
+          )}
+          <button type="button" className="button-link" onClick={logout}>
+            Log out
+          </button>
+        </div>
       </div>
 
       {error && (
@@ -211,7 +227,7 @@ function AdminTools() {
             </thead>
             <tbody>
               {pending.map((request) => (
-                <RequestRow request={request} key={request.id} />
+                <RequestRow request={request} decidedBy={identity} key={request.id} />
               ))}
             </tbody>
           </table>
@@ -264,6 +280,7 @@ function AdminTools() {
               <li key={r.id}>
                 {r.name} ({r.email}) &mdash; {r.status}
                 {r.memberId ? ` · ID ${r.memberId}` : ''}
+                {r.decidedBy ? ` · by ${r.decidedBy}` : ''}
               </li>
             ))}
           </ul>

@@ -19,6 +19,13 @@ export const ADMIN_UID = 'EFvCB38O8Pac40buJ6VP6tVa30x1'
 
 export const contactEmail = 'mtgtaverncutortap@gmail.com'
 
+// Logins shared by more than one real person. Whoever logs into one of these
+// accounts is asked which of these names they are, so admin actions and
+// member defaults reflect the right person even though the login is shared.
+export const sharedIdentities = {
+  'mtgtaverncutortap@gmail.com': ['Jacob', 'Stephen'],
+}
+
 // The three membership tiers. Edit names, prices and perks freely. `id` is
 // used to store which tier a member has, so avoid changing an existing id.
 export const tiers = [

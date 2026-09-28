@@ -19,7 +19,7 @@ const mailtoRequest = ({ name, email, tierName, note }) => {
 
 // Log in / account link shown in the top menu.
 export function AccountNav() {
-  const { enabled, loading, user, isMember, logout } = useMembership()
+  const { enabled, loading, user, isMember, isAdmin, logout } = useMembership()
 
   if (!enabled || loading) return null
 
@@ -38,12 +38,46 @@ export function AccountNav() {
 
   return (
     <div className="nav-account">
-      <a className="nav-join" href={isMember ? '#members' : '#membership'}>
-        {isMember ? 'Members' : 'Account'}
+      <a className="nav-join" href={isAdmin ? '#admin' : isMember ? '#members' : '#membership'}>
+        {isAdmin ? 'Admin' : isMember ? 'Members' : 'Account'}
       </a>
       <button type="button" className="nav-login" onClick={logout}>
         Log out
       </button>
+    </div>
+  )
+}
+
+// Asks which shared-login person is currently using the site (see
+// membership.config.js: sharedIdentities), so admin actions and member
+// defaults reflect the right person even though the login is shared.
+export function IdentityPrompt() {
+  const { user, identityOptions, identity, setIdentity } = useMembership()
+
+  if (!user || !identityOptions || identity) return null
+
+  return (
+    <div className="rules-modal" role="dialog" aria-modal="true" aria-label="Who is this?">
+      <div className="rules-modal-card">
+        <p className="tier-label">One more thing</p>
+        <h3 className="tier-name">Who&rsquo;s logging in?</h3>
+        <p className="rules-modal-text">
+          This login is shared. Let us know who you are so things like approvals show the right
+          name.
+        </p>
+        <div className="identity-options">
+          {identityOptions.map((name) => (
+            <button
+              type="button"
+              className="button"
+              key={name}
+              onClick={() => setIdentity(name)}
+            >
+              {name}
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }
